@@ -3,3 +3,11 @@
 ################################################################################
 
 /src/NP.Auction.Client/.vs/NP.Auction.Client/v16
+/src/NP.Auction.Client/NP.Auction.Client.Console/bin/Debug
+/src/NP.Auction.Client/NP.Auction.Client.Console/obj/Debug
+/src/NP.Auction.Client/NP.Auction.Client.Core.Extensions/bin/Debug/netcoreapp3.1
+/src/NP.Auction.Client/NP.Auction.Client.Core.Extensions/obj
+/src/NP.Auction.Client/packages/Microsoft.Bcl.AsyncInterfaces.1.1.0
+/src/NP.Auction.Client/packages
+/src/NP.Auction.Client/NP.Auction.Client/bin/Debug/netstandard2.0
+/src/NP.Auction.Client/NP.Auction.Client/obj

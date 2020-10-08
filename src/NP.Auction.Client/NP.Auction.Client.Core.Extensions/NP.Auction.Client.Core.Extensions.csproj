@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.7" />
+    <PackageReference Include="Refit" Version="5.2.1" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="5.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NP.Auction.Client\NP.Auction.Client.csproj" />
+  </ItemGroup>
+
+</Project>
