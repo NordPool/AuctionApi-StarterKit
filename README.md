@@ -1,5 +1,5 @@
 # AuctionApi-StarterKit
-Rapid onboarding starter kit for .NET (Core and Framework > 4.7.0) the Nord Pool Auctions API
+Rapid onboarding starter kit for .NET (Core > 2.0 and Framework > 4.7.0) the Nord Pool Auctions API
 
 ## Content
 This solution contains the following projects:
