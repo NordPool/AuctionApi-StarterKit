@@ -86,7 +86,8 @@
         {
             Console.WriteLine("-------------");
             Console.WriteLine("Provide curve order id for modification:");
-            var orderId = Guid.Parse(Console.ReadLine());
+
+            var orderId = RequestOrderId();
 
             try
             {
@@ -119,7 +120,8 @@
         {
             Console.WriteLine("-------------");
             Console.WriteLine("Provide curve order id for cancellation:");
-            var orderId = Guid.Parse(Console.ReadLine());
+
+            var orderId = RequestOrderId();
 
             try
             {
@@ -160,7 +162,8 @@
         {
             Console.WriteLine("-------------");
             Console.WriteLine("Provide block order id for modification:");
-            var orderId = Guid.Parse(Console.ReadLine());
+
+            var orderId = RequestOrderId();
 
             try
             {
@@ -201,7 +204,8 @@
         {
             Console.WriteLine("-------------");
             Console.WriteLine("Provide block order id for cancellation:");
-            var orderId = Guid.Parse(Console.ReadLine());
+
+            var orderId = RequestOrderId();
 
             try
             {
@@ -316,6 +320,18 @@
             // Fetch trades for selected auction
             var trades = await _auctionApiClient.GetTradesAsync(_selectedAuction.Id, null, null);
             ConsoleHelper.WriteTradesInfo(trades);
+        }
+
+        private static Guid RequestOrderId()
+        {
+            Guid orderId;
+
+            while (!Guid.TryParse(Console.ReadLine(), out orderId))
+            {
+                Console.WriteLine("Order Id is not a valid GUID. Please try again:");
+            }
+
+            return orderId;
         }
 
         private static AuthConfig ReadAuthorizationConfig()
