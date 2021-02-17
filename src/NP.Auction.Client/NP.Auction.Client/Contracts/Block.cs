@@ -14,8 +14,10 @@
         public string LinkedTo { get; set; }
         public string ExclusiveGroup { get; set; }
         public IEnumerable<Period> Periods { get; set; }
+        public BlockType Type { get; set; }
+        public bool IsSpreadBlock { get; set; }
 
-        [JsonIgnore] public bool IsLinkedBlock => !string.IsNullOrEmpty(LinkedTo);
+        [JsonIgnore] public bool IsLinkedBlock => !string.IsNullOrEmpty(LinkedTo) && !IsSpreadBlock;
 
         [JsonIgnore] public bool IsExclusiveGroup => !string.IsNullOrEmpty(ExclusiveGroup);
 

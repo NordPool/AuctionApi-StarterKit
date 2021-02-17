@@ -63,6 +63,10 @@
                         await HandleModifyBlock();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
+                    case CommandType.ModifySpreadBlock:
+                        await HandleModifyBlock(BlockOrderType.Spread);
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
                     case CommandType.CancelCurve:
                         await HandleCancelCurve();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
@@ -158,7 +162,7 @@
             _selectedAuction = _availableAuctions.First(x => x.Id == selectedAuctionId);
         }
 
-        private static async Task HandleModifyBlock()
+        private static async Task HandleModifyBlock(BlockOrderType blockOrderType = BlockOrderType.Regular)
         {
             Console.WriteLine("-------------");
             Console.WriteLine("Provide block order id for modification:");
@@ -174,7 +178,7 @@
                     existingBlockOrder.Blocks.All(x => x.State == OrderStateType.Cancelled))
                 {
                     Console.WriteLine("Existing block order cancelled, modifying by adding blocks...");
-                    existingBlockOrder.Blocks = OrderGenerator.GenerateBlocks(BlockOrderType.Regular, _selectedAuction)
+                    existingBlockOrder.Blocks = OrderGenerator.GenerateBlocks(blockOrderType, _selectedAuction)
                         .ToList();
                 }
                 else
@@ -277,7 +281,7 @@
             var portfolioName = Console.ReadLine();
             Console.WriteLine("Provide area code for placing block order:");
             var areaCode = Console.ReadLine();
-            Console.WriteLine("Provide block type (\"Regular\", \"Linked\", \"Profiled\", \"ExclusiveGroup\"):");
+            Console.WriteLine("Provide block type (\"Regular\", \"Linked\", \"Profiled\", \"ExclusiveGroup\", \"Spread\"):");
             BlockOrderType blockOrderType;
             while (!Enum.TryParse(Console.ReadLine(), out blockOrderType))
                 Console.WriteLine("Incorrect option specified! Try again.");

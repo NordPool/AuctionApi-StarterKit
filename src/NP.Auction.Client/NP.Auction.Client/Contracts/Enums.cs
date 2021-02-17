@@ -29,4 +29,12 @@
         ResultsPublished = 2,
         Cancelled = 3
     }
+
+    public enum BlockType
+    {
+        RegularBlock = 0,
+        LinkedBlock = 1,
+        SpreadBlock = 2,
+        ExclusiveGroup = 3,
+    }
 }

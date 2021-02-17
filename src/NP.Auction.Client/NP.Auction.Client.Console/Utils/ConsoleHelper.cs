@@ -100,7 +100,7 @@
             if (auction.State == AuctionStateType.Open)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"ModifyCurve\", \"ModifyBlock\",  \"CancelCurve\",  \"CancelBlock\", \"Auctions\", \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"ModifyCurve\", \"ModifyBlock\", \"ModifySpreadBlock\",  \"CancelCurve\",  \"CancelBlock\", \"Auctions\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -177,6 +177,7 @@
             Console.WriteLine($"\tExclusive Group: {block.ExclusiveGroup}");
             Console.WriteLine($"\tLinkedTo: {block.LinkedTo}");
             Console.WriteLine($"\tState: {block.State}");
+            Console.WriteLine($"\tType: {block.Type}");
             Console.WriteLine("\tPeriods:");
             Console.WriteLine();
             foreach (var period in block.Periods)
@@ -196,6 +197,7 @@
         PlaceBlocks,
         ModifyCurve,
         ModifyBlock,
+        ModifySpreadBlock,
         CancelCurve,
         CancelBlock,
         Auctions,

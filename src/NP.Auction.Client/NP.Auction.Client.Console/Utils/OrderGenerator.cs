@@ -39,8 +39,9 @@
                 new Block
                 {
                     MinimumAcceptanceRatio = 1,
-                    Name = "RegularBlock",
+                    Name = blockOrderType == BlockOrderType.Spread ? "SpreadBlock1" : "RegularBlock",
                     Price = 50,
+                    IsSpreadBlock = blockOrderType == BlockOrderType.Spread ? true : false,
                     Periods = new List<Period>
                     {
                         new Period
@@ -111,6 +112,38 @@
                     }
                 });
 
+            if (blockOrderType == BlockOrderType.Spread)
+            {
+                var firstSpread = blocks.First();
+
+                blocks.Add(new Block
+                {
+                    MinimumAcceptanceRatio = 1,
+                    LinkedTo = firstSpread.Name,
+                    Name = "SpreadBlock2",
+                    Price = 50,
+                    Type = BlockType.SpreadBlock,
+                    IsSpreadBlock = true,
+                    Periods = new List<Period>
+                    {
+                        new Period
+                        {
+                            ContractId = auction.Contracts[0].Id,
+                            Volume = 150
+                        },
+                        new Period
+                        {
+                            ContractId = auction.Contracts[1].Id,
+                            Volume = 150
+                        }
+                    }
+                });
+
+                var lastSpread = blocks.Last();
+                firstSpread.LinkedTo = lastSpread.Name;
+                firstSpread.Type = BlockType.SpreadBlock;
+            }
+
             return blocks;
         }
 
@@ -166,6 +199,7 @@
         Regular,
         ExclusiveGroup,
         Linked,
-        Profiled
+        Profiled,
+        Spread
     }
 }
