@@ -174,7 +174,7 @@
                     existingBlockOrder.Blocks.All(x => x.State == OrderStateType.Cancelled))
                 {
                     Console.WriteLine("Existing block order cancelled, modifying by adding blocks...");
-                    existingBlockOrder.Blocks = OrderGenerator.GenerateBlocks(BlockOrderType.Regular, _selectedAuction)
+                    existingBlockOrder.Blocks = OrderGenerator.GenerateBlocks(ResolveBlockOrderType(existingBlockOrder), _selectedAuction)
                         .ToList();
                 }
                 else
@@ -277,7 +277,7 @@
             var portfolioName = Console.ReadLine();
             Console.WriteLine("Provide area code for placing block order:");
             var areaCode = Console.ReadLine();
-            Console.WriteLine("Provide block type (\"Regular\", \"Linked\", \"Profiled\", \"ExclusiveGroup\"):");
+            Console.WriteLine("Provide block type (\"Regular\", \"Linked\", \"Profiled\", \"ExclusiveGroup\", \"Spread\"):");
             BlockOrderType blockOrderType;
             while (!Enum.TryParse(Console.ReadLine(), out blockOrderType))
                 Console.WriteLine("Incorrect option specified! Try again.");
@@ -378,6 +378,31 @@
                 {
                     BaseAddress = new Uri(ConfigurationManager.AppSettings["auction-api-url"])
                 });
+        }
+
+        private static BlockOrderType ResolveBlockOrderType(BlockList blockList)
+        {
+            if (blockList.Blocks.Any(x => x.IsLinkedBlock))
+            {
+                return BlockOrderType.Linked;
+            }
+
+            if (blockList.Blocks.Any(x => x.IsSpreadBlock))
+            {
+                return BlockOrderType.Spread;
+            }
+
+            if (blockList.Blocks.Any(x => x.IsExclusiveGroup))
+            {
+                return BlockOrderType.ExclusiveGroup;
+            }
+
+            if (blockList.Blocks.Any(x => x.IsProfiledBlock))
+            {
+                return BlockOrderType.Profiled;
+            }
+
+            return BlockOrderType.Regular;
         }
     }
 }
