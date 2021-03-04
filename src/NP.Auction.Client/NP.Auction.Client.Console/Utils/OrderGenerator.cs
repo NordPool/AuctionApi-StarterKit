@@ -115,33 +115,31 @@
             if (blockOrderType == BlockOrderType.Spread)
             {
                 var firstSpread = blocks.First();
-
+                // Spread blocks should always contain a buy and sell block
                 blocks.Add(new Block
                 {
                     MinimumAcceptanceRatio = 1,
                     LinkedTo = firstSpread.Name,
                     Name = "SpreadBlock2",
                     Price = 50,
-                    Type = BlockType.SpreadBlock,
                     IsSpreadBlock = true,
                     Periods = new List<Period>
                     {
                         new Period
                         {
-                            ContractId = auction.Contracts[0].Id,
-                            Volume = 150
+                            ContractId = auction.Contracts[2].Id,
+                            Volume = -150
                         },
                         new Period
                         {
-                            ContractId = auction.Contracts[1].Id,
-                            Volume = 150
+                            ContractId = auction.Contracts[3].Id,
+                            Volume = -150
                         }
                     }
                 });
 
                 var lastSpread = blocks.Last();
                 firstSpread.LinkedTo = lastSpread.Name;
-                firstSpread.Type = BlockType.SpreadBlock;
             }
 
             return blocks;

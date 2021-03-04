@@ -29,7 +29,7 @@
             // Fetch open auctions for today
             Console.WriteLine($"Fetching auctions for today {DateTime.Today:d}...");
             _availableAuctions =
-                await _auctionApiClient.GetAuctionsAsync(DateTime.UtcNow.Date, DateTime.UtcNow.Date.AddDays(1));
+                await _auctionApiClient.GetAuctionsAsync(DateTime.UtcNow.Date.AddDays(5), DateTime.UtcNow.Date.AddDays(6));
 
             HandleAuctionsCommand();
 
@@ -61,10 +61,6 @@
                         continue;
                     case CommandType.ModifyBlock:
                         await HandleModifyBlock();
-                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
-                        continue;
-                    case CommandType.ModifySpreadBlock:
-                        await HandleModifyBlock(BlockOrderType.Spread);
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.CancelCurve:
@@ -162,7 +158,7 @@
             _selectedAuction = _availableAuctions.First(x => x.Id == selectedAuctionId);
         }
 
-        private static async Task HandleModifyBlock(BlockOrderType blockOrderType = BlockOrderType.Regular)
+        private static async Task HandleModifyBlock()
         {
             Console.WriteLine("-------------");
             Console.WriteLine("Provide block order id for modification:");
@@ -178,7 +174,7 @@
                     existingBlockOrder.Blocks.All(x => x.State == OrderStateType.Cancelled))
                 {
                     Console.WriteLine("Existing block order cancelled, modifying by adding blocks...");
-                    existingBlockOrder.Blocks = OrderGenerator.GenerateBlocks(blockOrderType, _selectedAuction)
+                    existingBlockOrder.Blocks = OrderGenerator.GenerateBlocks(ResolveBlockOrderType(existingBlockOrder), _selectedAuction)
                         .ToList();
                 }
                 else
@@ -382,6 +378,31 @@
                 {
                     BaseAddress = new Uri(ConfigurationManager.AppSettings["auction-api-url"])
                 });
+        }
+
+        private static BlockOrderType ResolveBlockOrderType(BlockList blockList)
+        {
+            if (blockList.Blocks.Any(x => x.IsLinkedBlock))
+            {
+                return BlockOrderType.Linked;
+            }
+
+            if (blockList.Blocks.Any(x => x.IsSpreadBlock))
+            {
+                return BlockOrderType.Spread;
+            }
+
+            if (blockList.Blocks.Any(x => x.IsExclusiveGroup))
+            {
+                return BlockOrderType.ExclusiveGroup;
+            }
+
+            if (blockList.Blocks.Any(x => x.IsProfiledBlock))
+            {
+                return BlockOrderType.Profiled;
+            }
+
+            return BlockOrderType.Regular;
         }
     }
 }
