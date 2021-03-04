@@ -29,7 +29,7 @@
             // Fetch open auctions for today
             Console.WriteLine($"Fetching auctions for today {DateTime.Today:d}...");
             _availableAuctions =
-                await _auctionApiClient.GetAuctionsAsync(DateTime.UtcNow.Date.AddDays(5), DateTime.UtcNow.Date.AddDays(6));
+                await _auctionApiClient.GetAuctionsAsync(DateTime.UtcNow.Date, DateTime.UtcNow.Date.AddDays(1));
 
             HandleAuctionsCommand();
 
