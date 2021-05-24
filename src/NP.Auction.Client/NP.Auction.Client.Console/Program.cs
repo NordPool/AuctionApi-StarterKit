@@ -156,6 +156,7 @@
             Console.WriteLine("Select an auction for further requests:");
             var selectedAuctionId = Console.ReadLine();
             _selectedAuction = _availableAuctions.First(x => x.Id == selectedAuctionId);
+            ConsoleHelper.WriteDetailedAuctionInfo(_selectedAuction);
         }
 
         private static async Task HandleModifyBlock()
