@@ -30,6 +30,46 @@
                 Console.WriteLine(auction.Id);
         }
 
+        public static void WriteDetailedAuctionInfo(Auction auction)
+        {
+            Console.WriteLine($"Selected auction: {auction.Id}");
+            Console.WriteLine($"Supported currencies with Min and Max prices are following:");
+
+            foreach (var currencyInfo in auction.Currencies)
+            {
+                WriteCurrencyInfo(currencyInfo);
+            }
+
+            Console.WriteLine($"Available portfolios for selected auction are following:");
+
+            foreach (var portfolio in auction.Portfolios)
+            {
+                WritePortfolioInfo(portfolio);
+            }
+        }
+
+        private static void WriteCurrencyInfo(Currency currency)
+        {
+            Console.WriteLine($"\t{currency.CurrencyCode}");
+            Console.WriteLine($"\tMin: {currency.MinPrice} - Max: {currency.MaxPrice}");
+            Console.WriteLine("---");
+        }
+
+        private static void WritePortfolioInfo(Portfolio portfolio)
+        {
+            Console.WriteLine($"\tId: {portfolio.Id}");
+            Console.WriteLine($"\tName: {portfolio.Name}");
+            Console.WriteLine($"\tCompany: {portfolio.CompanyName}");
+            Console.WriteLine($"\tCurrency: {portfolio.Currency}");
+            Console.WriteLine($"\tPermission: {portfolio.Permission}");
+            Console.WriteLine("\tTradable areas for portfolio (area code - name - eic code):");
+            foreach (var area in portfolio.Areas)
+            {
+                Console.WriteLine($"\t\t{area.Code} - {area.Name} - {area.EicCode}");
+            }
+            Console.WriteLine("---");
+        }
+
         public static void WriteOrdersInfo(OrdersResponse orders)
         {
             Console.WriteLine($"Listing {orders.CurveOrders.Count} curve orders:");

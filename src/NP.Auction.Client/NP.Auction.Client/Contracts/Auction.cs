@@ -12,5 +12,7 @@
         public DateTime DeliveryStart { get; set; }
         public DateTime DeliveryEnd { get; set; }
         public List<Contract> Contracts { get; set; }
+        public List<Currency> Currencies { get; set; }
+        public List<Portfolio> Portfolios { get; set; }
     }
 }

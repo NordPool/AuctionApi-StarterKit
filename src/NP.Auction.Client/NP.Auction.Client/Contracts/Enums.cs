@@ -29,4 +29,11 @@
         ResultsPublished = 2,
         Cancelled = 3
     }
+
+    public enum PortfolioPermission
+    {
+        None = 0,
+        READ = 1,
+        WRITE = 2
+    }
 }
