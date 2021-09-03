@@ -14,5 +14,6 @@
         public OrderStateType State { get; set; }
         public List<Curve> Curves { get; set; }
         public string PortfolioId { get; set; }
+        public string Comment { get; set; }
     }
 }

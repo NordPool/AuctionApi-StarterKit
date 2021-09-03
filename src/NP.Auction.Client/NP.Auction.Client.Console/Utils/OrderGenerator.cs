@@ -14,6 +14,7 @@
                 AreaCode = areaCode,
                 Portfolio = portfolio,
                 AuctionId = auction.Id,
+                Comment = $"CurveOrder_{areaCode}_{portfolio}",
                 Curves = GenerateCurves(auction, minPrice, maxPrice).ToList()
             };
 
@@ -28,6 +29,7 @@
                 AreaCode = areaCode,
                 AuctionId = auction.Id,
                 Portfolio = portfolio,
+                Comment = $"BlockOrder_{areaCode}_{portfolio}",
                 Blocks = GenerateBlocks(blockOrderType, auction).ToList()
             };
         }

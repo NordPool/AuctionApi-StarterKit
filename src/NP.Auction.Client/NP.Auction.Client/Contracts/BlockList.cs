@@ -12,5 +12,6 @@
         public string Modifier { get; set; }
         public DateTime Modified { get; set; }
         public List<Block> Blocks { get; set; }
+        public string Comment { get; set; }
     }
 }

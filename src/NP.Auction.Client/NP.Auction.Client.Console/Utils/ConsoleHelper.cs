@@ -84,6 +84,7 @@
             Console.WriteLine($"AuctionId: {blockOrderRequest.AuctionId}");
             Console.WriteLine($"AreaCode: {blockOrderRequest.AreaCode}");
             Console.WriteLine($"Portfolio: {blockOrderRequest.Portfolio}");
+            Console.WriteLine($"Comment: {blockOrderRequest.Comment}");
 
             Console.WriteLine("Blocks:");
 
@@ -97,6 +98,7 @@
             Console.WriteLine($"Area: {curveOrder.AreaCode}");
             Console.WriteLine($"State: {curveOrder.State}");
             Console.WriteLine($"Portfolio: {curveOrder.Portfolio}");
+            Console.WriteLine($"Comment: {curveOrder.Comment}");
             WriteCurves(curveOrder);
             Console.WriteLine("---");
         }
@@ -107,6 +109,7 @@
             Console.WriteLine($"AuctionId: {curveOrderRequest.AuctionId}");
             Console.WriteLine($"AreaCode: {curveOrderRequest.AreaCode}");
             Console.WriteLine($"Portfolio: {curveOrderRequest.Portfolio}");
+            Console.WriteLine($"Comment: {curveOrderRequest.Comment}");
             WriteCurves(curveOrderRequest);
             Console.WriteLine("---");
         }
@@ -205,6 +208,7 @@
             Console.WriteLine($"AuctionId: {blockList.AuctionId}");
             Console.WriteLine($"AreaCode: {blockList.AreaCode}");
             Console.WriteLine($"Portfolio: {blockList.Portfolio}");
+            Console.WriteLine($"Comment: {blockList.Comment}");
             Console.WriteLine("Blocks:");
 
             foreach (var block in blockList.Blocks) WriteBlock(block);
