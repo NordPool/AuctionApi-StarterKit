@@ -24,5 +24,6 @@
         public decimal Volume { get; set; }
         public decimal Price { get; set; }
         public TradeSide Side { get; set; }
+        public AuctionResultState Status { get; set; }
     }
 }

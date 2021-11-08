@@ -36,4 +36,12 @@
         READ = 1,
         WRITE = 2
     }
+
+    public enum AuctionResultState
+    {
+        NotAvailable,
+        PreliminaryResults,
+        Final,
+        InitialPrice
+    }
 }
