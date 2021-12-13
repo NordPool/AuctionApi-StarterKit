@@ -198,6 +198,7 @@
                 Console.WriteLine($"Price: {trade.Price}");
                 Console.WriteLine($"Volumes: {trade.Volume}");
                 Console.WriteLine($"TradeSide: {trade.Side}");
+                Console.WriteLine($"Status: {trade.Status}");
                 Console.WriteLine("");
             }
         }
