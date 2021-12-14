@@ -75,6 +75,10 @@
                         HandleAuctionsCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
+                    case CommandType.Prices:
+                        await HandlePricesCommand();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
                 }
             }
 
@@ -321,6 +325,27 @@
             // Fetch trades for selected auction
             var trades = await _auctionApiClient.GetTradesAsync(_selectedAuction.Id, null, null);
             ConsoleHelper.WriteTradesInfo(trades);
+        }
+
+        private static async Task HandlePricesCommand()
+        {
+            Console.WriteLine("------------");
+            Console.WriteLine($"Fetching prices for auction {_selectedAuction.Id}...");
+
+            try
+            {
+                // Fetch prices for selected auction
+                var prices = await _auctionApiClient.GetPrices(_selectedAuction.Id);
+                ConsoleHelper.WritePricesInfo(prices);
+            }
+            catch (AuctionApiException exception)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Get prices failed with following error:");
+                Console.WriteLine($"HTTP STATUS: {exception.HttpStatusCode}");
+                Console.WriteLine($"{exception.Message}");
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
         }
 
         private static Guid RequestOrderId()

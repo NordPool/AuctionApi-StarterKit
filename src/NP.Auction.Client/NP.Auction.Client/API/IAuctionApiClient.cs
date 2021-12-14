@@ -46,6 +46,14 @@
             [Query(CollectionFormat.Multi)] string[] portfolios, [Query(CollectionFormat.Multi)] string[] areas);
 
         /// <summary>
+        ///     Get prices for selected auction.
+        /// </summary>
+        /// <param name="auctionId">Auction id for which the prices should be requested</param> 
+        /// <returns>Collection of prices <see cref="PricesResponse" /></returns>
+        [Get("/auctions/{auctionId}/prices")]
+        Task<PricesResponse> GetPricesAsync([Url] string auctionId);
+
+        /// <summary>
         ///     Post a new curve order through Auction API
         /// </summary>
         /// <param name="curveOrderRequest">Curve order to be placed<see cref="CurveOrderRequest" /></param>
@@ -60,7 +68,6 @@
         /// <returns>Placed block order<see cref="BlockList" /></returns>
         [Post("/blockorders")]
         Task<BlockList> PostBlockOrderAsync([Body] BlockOrderRequest blockOrderRequest);
-
 
         /// <summary>
         ///     Gets a block order based on provided order id
@@ -104,7 +111,8 @@
     }
 
     /// <summary>
-    ///     Extending client for better error handling and support of cancelling blocks/curves
+    ///     Extending client for better error handling and support of cancelling blocks/curves and not
+    ///     yet published prices.
     /// </summary>
     public static class AuctionApiClientExtensions
     {
@@ -152,7 +160,6 @@
             await apiClient.ModifyBlockOrder(orderId, new List<Block>());
         }
 
-
         public static async Task CancelCurveOrder(this IAuctionApiClient apiClient, Guid orderId)
         {
             await apiClient.ModifyCurveOrder(orderId, new List<Curve>());
@@ -170,6 +177,18 @@
             }
         }
 
+        public static async Task<PricesResponse> GetPrices(this IAuctionApiClient apiClient,
+            string auctionId)
+        {
+            try
+            {
+                return await apiClient.GetPricesAsync(auctionId);
+            }
+            catch (ApiException exception)
+            {
+                throw ConstructApiException(exception);
+            }
+        }
 
         private static AuctionApiException ConstructApiException(ApiException exception)
         {

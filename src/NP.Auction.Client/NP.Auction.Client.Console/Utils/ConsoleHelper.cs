@@ -154,7 +154,7 @@
             if (auction.State == AuctionStateType.ResultsPublished)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"Trades\", \"Auctions\", \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"Trades\", \"Prices\", \"Auctions\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -164,7 +164,7 @@
 
             if (auction.State == AuctionStateType.Closed)
             {
-                Console.WriteLine("Available options: \"Orders\", \"Auctions\", \"Exit\". Specify one of the options:");
+                Console.WriteLine("Available options: \"Orders\", \"Prices\", \"Auctions\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -203,6 +203,40 @@
             }
         }
 
+        public static void WritePricesInfo(PricesResponse prices)
+        {
+            Console.WriteLine($"\nAuctionId: {prices.Auction}");
+            Console.WriteLine();
+
+            foreach (var contract in prices.Contracts) WritePrice(contract);
+        }
+
+        private static void WritePrice(ContractPrice contract)
+        {
+            Console.WriteLine($"ContractId: {contract.ContractId}");
+            Console.WriteLine($"DeliveryStart: {contract.DeliveryStart}");
+            Console.WriteLine($"DeliveryEnd: {contract.DeliveryEnd}");
+
+            foreach (var area in contract.Areas)
+            {
+                Console.WriteLine($"\tAreaCode: {area.AreaCode}");
+                foreach (var price in area.Prices)
+                {
+                    if (price.MarketPrice.HasValue)
+                    {
+                        Console.WriteLine($"\tCurrencyCode: {price.CurrencyCode}");
+                        Console.WriteLine($"\tMarketPrice: {price.MarketPrice}");
+                        Console.WriteLine($"\tStatus: {price.Status}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("\tNo price for area");
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+
         public static void WriteBlockList(BlockList blockList)
         {
             Console.WriteLine($"OrderId: {blockList.OrderId}");
@@ -238,6 +272,7 @@
         None,
         Orders,
         Trades,
+        Prices,
         PlaceCurve,
         PlaceBlocks,
         ModifyCurve,
