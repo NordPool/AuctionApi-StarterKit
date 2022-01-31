@@ -79,6 +79,10 @@
                         await HandlePricesCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
+                    case CommandType.PortfolioVolumes:
+                        await HandlePortfolioVolumesCommand();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
                 }
             }
 
@@ -337,6 +341,27 @@
                 // Fetch prices for selected auction
                 var prices = await _auctionApiClient.GetPrices(_selectedAuction.Id);
                 ConsoleHelper.WritePricesInfo(prices);
+            }
+            catch (AuctionApiException exception)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Get prices failed with following error:");
+                Console.WriteLine($"HTTP STATUS: {exception.HttpStatusCode}");
+                Console.WriteLine($"{exception.Message}");
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+        }
+
+        private static async Task HandlePortfolioVolumesCommand()
+        {
+            Console.WriteLine("------------");
+            Console.WriteLine($"Fetching portfolioVolumes for auction {_selectedAuction.Id}...");
+
+            try
+            {
+                // Fetch portfolio net volumes for selected auction
+                var portfolioVolumes = await _auctionApiClient.GetPortfolioVolumes(_selectedAuction.Id, null, null);
+                ConsoleHelper.WritePortfolioVolumesInfo(portfolioVolumes);
             }
             catch (AuctionApiException exception)
             {

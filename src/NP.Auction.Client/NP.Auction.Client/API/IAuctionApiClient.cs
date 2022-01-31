@@ -54,6 +54,15 @@
         Task<PricesResponse> GetPricesAsync([Url] string auctionId);
 
         /// <summary>
+        ///     Get portfolio net volumes for selected auction.
+        /// </summary>
+        /// <param name="auctionId">Auction id for which the portfolio volumes should be requested</param> 
+        /// <returns>Collection of portfolio volumes <see cref="PortfolioVolumesResponse" /></returns>
+        [Get("/auctions/{auctionId}/portfoliovolumes")]
+        Task<PortfolioVolumesResponse> GetPortfolioVolumesAsync([Url] string auctionId,
+            [Query(CollectionFormat.Multi)] string[] portfolios, [Query(CollectionFormat.Multi)] string[] areas);
+
+        /// <summary>
         ///     Post a new curve order through Auction API
         /// </summary>
         /// <param name="curveOrderRequest">Curve order to be placed<see cref="CurveOrderRequest" /></param>
@@ -183,6 +192,19 @@
             try
             {
                 return await apiClient.GetPricesAsync(auctionId);
+            }
+            catch (ApiException exception)
+            {
+                throw ConstructApiException(exception);
+            }
+        }
+
+        public static async Task<PortfolioVolumesResponse> GetPortfolioVolumes(this IAuctionApiClient apiClient,
+            string auctionId, string[] portfolios, string[] areas)
+        {
+            try
+            {
+                return await apiClient.GetPortfolioVolumesAsync(auctionId, portfolios, areas);
             }
             catch (ApiException exception)
             {

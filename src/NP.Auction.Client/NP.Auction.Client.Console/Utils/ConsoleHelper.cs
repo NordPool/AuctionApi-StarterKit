@@ -154,7 +154,7 @@
             if (auction.State == AuctionStateType.ResultsPublished)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"Trades\", \"Prices\", \"Auctions\", \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"Trades\", \"Prices\", \"PortfolioVolumes\", \"Auctions\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -164,7 +164,7 @@
 
             if (auction.State == AuctionStateType.Closed)
             {
-                Console.WriteLine("Available options: \"Orders\", \"Prices\", \"Auctions\", \"Exit\". Specify one of the options:");
+                Console.WriteLine("Available options: \"Orders\", \"Auctions\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -237,6 +237,35 @@
             }
         }
 
+        public static void WritePortfolioVolumesInfo(PortfolioVolumesResponse portfolioVolumes)
+        {
+            Console.WriteLine($"\nAuctionId: {portfolioVolumes.AuctionId}");
+            Console.WriteLine();
+
+            foreach (var contract in portfolioVolumes.PortfolioNetVolumes) WritePortfolioVolume(contract);
+        }
+
+        private static void WritePortfolioVolume(PortfolioNetVolume portfolioVolume)
+        {
+            Console.WriteLine($"Portfolio: {portfolioVolume.Portfolio}");
+            Console.WriteLine($"CompanyName: {portfolioVolume.CompanyName}");
+
+            foreach (var area in portfolioVolume.AreaNetVolumes)
+            {
+                Console.WriteLine($"\tAreaCode: {area.AreaCode}");
+                foreach (var netVolume in area.NetVolumes)
+                {
+                    var volume = netVolume.NetVolume?.ToString() ?? "No volume available"; 
+
+                    Console.WriteLine($"\tContractId: {netVolume.ContractId}");
+                    Console.WriteLine($"\tNetVolume: {volume}");
+                    Console.WriteLine($"\tDeliveryStart: {netVolume.DeliveryStart}");
+                    Console.WriteLine($"\tDeliveryEnd: {netVolume.DeliveryEnd}");
+                }
+                Console.WriteLine($"\t---");
+            }
+        }
+
         public static void WriteBlockList(BlockList blockList)
         {
             Console.WriteLine($"OrderId: {blockList.OrderId}");
@@ -273,6 +302,7 @@
         Orders,
         Trades,
         Prices,
+        PortfolioVolumes,
         PlaceCurve,
         PlaceBlocks,
         ModifyCurve,
