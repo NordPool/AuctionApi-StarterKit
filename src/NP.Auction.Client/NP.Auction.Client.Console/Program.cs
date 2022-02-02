@@ -355,7 +355,7 @@
         private static async Task HandlePortfolioVolumesCommand()
         {
             Console.WriteLine("------------");
-            Console.WriteLine($"Fetching portfolioVolumes for auction {_selectedAuction.Id}...");
+            Console.WriteLine($"Fetching portfolio volumes for auction {_selectedAuction.Id}...");
 
             try
             {
@@ -366,7 +366,7 @@
             catch (AuctionApiException exception)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Get prices failed with following error:");
+                Console.WriteLine("Get portfolio volumes failed with following error:");
                 Console.WriteLine($"HTTP STATUS: {exception.HttpStatusCode}");
                 Console.WriteLine($"{exception.Message}");
                 Console.ForegroundColor = ConsoleColor.Gray;
