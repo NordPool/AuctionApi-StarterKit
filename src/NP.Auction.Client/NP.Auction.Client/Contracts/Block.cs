@@ -20,6 +20,6 @@
 
         [JsonIgnore] public bool IsExclusiveGroup => !string.IsNullOrEmpty(ExclusiveGroup);
 
-        [JsonIgnore] public bool IsProfiledBlock => Periods.Select(x => x.Volume).Distinct().Count() == 1;
+        [JsonIgnore] public bool IsProfiledBlock => Periods.Select(x => x.Volume).Distinct().Count() > 1;
     }
 }
