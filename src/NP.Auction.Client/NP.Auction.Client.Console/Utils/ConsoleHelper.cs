@@ -98,6 +98,7 @@
             Console.WriteLine($"Area: {curveOrder.AreaCode}");
             Console.WriteLine($"State: {curveOrder.State}");
             Console.WriteLine($"Portfolio: {curveOrder.Portfolio}");
+            Console.WriteLine($"Company: {curveOrder.CompanyName}");
             Console.WriteLine($"Comment: {curveOrder.Comment}");
             WriteCurves(curveOrder);
             Console.WriteLine("---");
@@ -179,19 +180,33 @@
         {
             Console.WriteLine("Trades fetched:");
             Console.WriteLine("Trades for Curve Orders");
-            foreach (var tradesSummary in trades.Where(x => x.OrderType == OrderType.Curve)) WriteTrade(tradesSummary);
+            foreach (var tradesSummary in trades.Where(x => x.OrderType == OrderType.Curve)) WriteTradeSummary(tradesSummary, OrderType.Curve);
 
             Console.WriteLine("Trades for Block Orders");
-            foreach (var tradesSummary in trades.Where(x => x.OrderType == OrderType.Block)) WriteTrade(tradesSummary);
+            foreach (var tradesSummary in trades.Where(x => x.OrderType == OrderType.Block)) WriteTradeSummary(tradesSummary, OrderType.Block);
         }
 
-        private static void WriteTrade(TradesSummary tradesSummary)
+        private static void WriteTradeSummary(TradesSummary tradesSummary, OrderType orderType)
         {
             Console.WriteLine($"AuctionId: {tradesSummary.AuctionId}");
             Console.WriteLine($"AreaCode: {tradesSummary.AreaCode}");
+            Console.WriteLine($"Company: {tradesSummary.CompanyName}");
             Console.WriteLine($"Portfolio: {tradesSummary.Portfolio}");
             Console.WriteLine($"Currency: {tradesSummary.CurrencyCode}");
-            foreach (var trade in tradesSummary.Trades)
+            if (orderType == OrderType.Block)
+            {
+                Console.WriteLine($"Block name: {tradesSummary.Name}");
+                Console.WriteLine($"ExclusiveGroup: {tradesSummary.ExclusiveGroup}");
+                Console.WriteLine($"LinkedTo: {tradesSummary.LinkedTo}");
+                Console.WriteLine($"IsSpreadBlock: {tradesSummary.IsSpreadBlock}");
+            }
+
+            WriteTrades(tradesSummary.Trades);
+        }
+
+        private static void WriteTrades(IEnumerable<Trade> trades)
+        {
+            foreach (var trade in trades)
             {
                 Console.WriteLine($"TradeId: {trade.TradeId}");
                 Console.WriteLine($"Contract: {trade.ContractId}");
@@ -272,6 +287,7 @@
             Console.WriteLine($"AuctionId: {blockList.AuctionId}");
             Console.WriteLine($"AreaCode: {blockList.AreaCode}");
             Console.WriteLine($"Portfolio: {blockList.Portfolio}");
+            Console.WriteLine($"Company: {blockList.CompanyName}");
             Console.WriteLine($"Comment: {blockList.Comment}");
             Console.WriteLine("Blocks:");
 
