@@ -1,0 +1,29 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "NP.Auction.Client";
+
+package auction;
+
+service AuctionNotifier {
+  rpc GetAuctionStatusStream (google.protobuf.Empty) returns (stream AuctionStatusReply);
+}
+
+enum Status {
+  STATUS_NOT_AVAILABLE = 0;
+  STATUS_PRELIMINARY_RESULTS = 1;
+  STATUS_FINAL = 2;
+  STATUS_INITIAL_PRICE = 3;
+}
+
+message AuctionStatusReply {
+  bool keepAlive = 1;
+  bool hasStatus = 2;
+  AuctionStatus auctionStatus = 3;
+}
+
+message AuctionStatus {
+  string id = 1;
+  Status status = 2;
+}

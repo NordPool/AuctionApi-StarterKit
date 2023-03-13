@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NP.Auction.Client\NP.Auction.Client.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Grpc.Net.Client" Version="2.51.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+</Project>

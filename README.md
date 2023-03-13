@@ -13,6 +13,10 @@ This solution contains the following projects:
 - A .NET Framework 4.7.2 Console application that demonstrates all key functionalities of the Auction REST API by utilizing the NP.Auction.Client library.
   - Before usage, please specify proper username/password combination in the App.Config
 
+### NP.Auction.Client.GrpcConsole
+- A .NET 6 Console application that demonstrates all key functionalities of the Auction gRPC API by utilizing the proto files in NP.Auction.Client library for client generation.
+  - Before usage, please specify proper username/password combination in the appsettings.config file
+
 ### NP.Auction.Client.Core.Extensions
 - A .NET Core 3.1 library that contains a small extension method for easier registration of the Auction REST API Client
   - In case loading of this particular project fails, please make sure that .NET Core 3.1 SDK is installed. You can install the SDK from [here](https://dotnet.microsoft.com/download/dotnet-core/3.1)
