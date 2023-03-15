@@ -53,6 +53,7 @@ public class Program
             switch (selection.Key)
             {
                 case ConsoleKey.D1:
+                case ConsoleKey.NumPad1:
                     return CommandType.OpenAuctionStatusStream;
                 case ConsoleKey.Q:
                     return CommandType.Quit;
