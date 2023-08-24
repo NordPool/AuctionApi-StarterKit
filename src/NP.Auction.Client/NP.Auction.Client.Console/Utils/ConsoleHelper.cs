@@ -7,6 +7,8 @@
 
     public static class ConsoleHelper
     {
+        private const string Format = "yyyy-MM-ddTHH:mm:ssZ";
+
         public static void WriteAuctionsInfo(IEnumerable<Auction> auctions)
         {
             Console.WriteLine("Open auctions:");
@@ -144,7 +146,7 @@
             if (auction.State == AuctionStateType.Open)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"ModifyCurve\", \"ModifyBlock\", \"CancelCurve\",  \"CancelBlock\", \"Auctions\", \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"ModifyCurve\", \"ModifyBlock\", \"CancelCurve\",  \"CancelBlock\", \"Auctions\", \"AuctionContracts\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -155,7 +157,7 @@
             if (auction.State == AuctionStateType.ResultsPublished)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"Trades\", \"Prices\", \"PortfolioVolumes\", \"Auctions\", \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"Trades\", \"Prices\", \"PortfolioVolumes\", \"Auctions\", \"AuctionContracts\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -165,7 +167,7 @@
 
             if (auction.State == AuctionStateType.Closed)
             {
-                Console.WriteLine("Available options: \"Orders\", \"Auctions\", \"Exit\". Specify one of the options:");
+                Console.WriteLine("Available options: \"Orders\", \"Auctions\", \"AuctionContracts\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -180,20 +182,20 @@
         {
             Console.WriteLine("Trades fetched:");
             Console.WriteLine("Trades for Curve Orders");
-            foreach (var tradesSummary in trades.Where(x => x.OrderType == OrderType.Curve)) WriteTradeSummary(tradesSummary, OrderType.Curve);
+            foreach (var tradesSummary in trades.Where(x => x.OrderResultType == OrderResultType.Curve)) WriteTradeSummary(tradesSummary, OrderResultType.Curve);
 
             Console.WriteLine("Trades for Block Orders");
-            foreach (var tradesSummary in trades.Where(x => x.OrderType == OrderType.Block)) WriteTradeSummary(tradesSummary, OrderType.Block);
+            foreach (var tradesSummary in trades.Where(x => x.OrderResultType == OrderResultType.Block)) WriteTradeSummary(tradesSummary, OrderResultType.Block);
         }
 
-        private static void WriteTradeSummary(TradesSummary tradesSummary, OrderType orderType)
+        private static void WriteTradeSummary(TradesSummary tradesSummary, OrderResultType orderResultType)
         {
             Console.WriteLine($"AuctionId: {tradesSummary.AuctionId}");
             Console.WriteLine($"AreaCode: {tradesSummary.AreaCode}");
             Console.WriteLine($"Company: {tradesSummary.CompanyName}");
             Console.WriteLine($"Portfolio: {tradesSummary.Portfolio}");
             Console.WriteLine($"Currency: {tradesSummary.CurrencyCode}");
-            if (orderType == OrderType.Block)
+            if (orderResultType == OrderResultType.Block)
             {
                 Console.WriteLine($"Block name: {tradesSummary.Name}");
                 Console.WriteLine($"ExclusiveGroup: {tradesSummary.ExclusiveGroup}");
@@ -310,6 +312,56 @@
                 Console.WriteLine($"\t\tVolume: {period.Volume}");
             }
         }
+
+        public static void WriteAuctionContractsInfo(AuctionMultiResolutionResponse auction)
+        {
+            Console.WriteLine($"Auction: {auction.Id}");
+            Console.WriteLine($"Name: {auction.Name}");
+            Console.WriteLine($"State: {auction.State}");
+            Console.WriteLine($"CloseForBidding: {auction.CloseForBidding.ToString(Format)}");
+            Console.WriteLine($"DeliveryStart: {auction.DeliveryStart.ToString(Format)}");
+            Console.WriteLine($"DeliveryEnd: {auction.DeliveryEnd.ToString(Format)}");
+            Console.WriteLine("---");
+            Console.WriteLine("AvailableOrderTypes:");
+            Console.WriteLine();
+            
+            foreach (var orderType in auction.AvailableOrderTypes)
+            {
+                Console.WriteLine($"\tOrderType Id: {orderType.Id}");
+                Console.WriteLine($"\tOrderType Name: {orderType.Name}");
+            }
+            Console.WriteLine("---");
+
+            Console.WriteLine("Currencies:");
+            Console.WriteLine();
+            foreach (var currency in auction.Currencies)
+            {
+                WriteCurrencyInfo(currency);
+            }
+            Console.WriteLine("Portfolios:");
+            foreach (var portfolio in auction.Portfolios)
+            {
+                WritePortfolioInfo(portfolio);
+            }
+            Console.WriteLine("AreaContractGroup:");
+            foreach (var areaContractGroup in auction.Contracts)
+            {
+                Console.WriteLine($"\tAreaCode: {areaContractGroup.AreaCode}");
+                WriteContracts(areaContractGroup.Contracts);
+            }
+            Console.WriteLine();
+        }
+
+        private static void WriteContracts(IEnumerable<Contract> contracts)
+        {
+            foreach (var contract in contracts)
+            {
+                Console.WriteLine($"\tId: {contract.Id}");
+                Console.WriteLine($"\tDeliveryStart: {contract.DeliveryStart.ToString(Format)}");
+                Console.WriteLine($"\tDeliveryEnd: {contract.DeliveryEnd.ToString(Format)}");
+            }
+            Console.WriteLine("---");
+        }
     }
 
     public enum CommandType
@@ -326,6 +378,7 @@
         CancelCurve,
         CancelBlock,
         Auctions,
-        Exit
+        Exit,
+        AuctionContracts
     }
 }

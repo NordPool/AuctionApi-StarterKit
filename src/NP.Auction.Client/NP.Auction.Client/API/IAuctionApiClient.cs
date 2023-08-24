@@ -63,6 +63,14 @@
             [Query(CollectionFormat.Multi)] string[] portfolios, [Query(CollectionFormat.Multi)] string[] areas);
 
         /// <summary>
+        ///     Get contracts with multi resolutions for selected auction.
+        /// </summary>
+        /// <param name="auctionId">Auction id for which contracts should be requested</param> 
+        /// <returns>Auction contracts with multi resolution <see cref="AuctionMultiResolutionResponse" /></returns>
+        [Get("/auctions/{auctionId}")]
+        Task<AuctionMultiResolutionResponse> GetAuctionAsync([Url] string auctionId);
+
+        /// <summary>
         ///     Post a new curve order through Auction API
         /// </summary>
         /// <param name="curveOrderRequest">Curve order to be placed<see cref="CurveOrderRequest" /></param>
@@ -205,6 +213,18 @@
             try
             {
                 return await apiClient.GetPortfolioVolumesAsync(auctionId, portfolios, areas);
+            }
+            catch (ApiException exception)
+            {
+                throw ConstructApiException(exception);
+            }
+        }
+
+        public static async Task<AuctionMultiResolutionResponse> GetAuctionContracts(this IAuctionApiClient apiClient, string auctionId)
+        {
+            try
+            {
+                return await apiClient.GetAuctionAsync(auctionId);
             }
             catch (ApiException exception)
             {
