@@ -1,6 +1,6 @@
 ﻿namespace NP.Auction.Client.Contracts
 {
-    public enum OrderType
+    public enum OrderResultType
     {
         Curve = 0,
         Block = 1

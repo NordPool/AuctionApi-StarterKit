@@ -83,11 +83,36 @@
                         await HandlePortfolioVolumesCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
+                    case CommandType.AuctionContracts:
+                        await HandleAuctionContractsCommand();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
                 }
             }
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadLine();
+        }
+
+        private static async Task HandleAuctionContractsCommand()
+        {
+            Console.WriteLine("------------");
+            Console.WriteLine($"Fetching auction with multi resolution contracts for auction {_selectedAuction.Id}...");
+            // Fetch contracts for selected auction
+            try
+            {
+                var auction = await _auctionApiClient.GetAuctionContracts(_selectedAuction.Id);
+                ConsoleHelper.WriteAuctionContractsInfo(auction);
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+
         }
 
         private static async Task HandleModifyCurve()
@@ -271,11 +296,11 @@
             }
             catch (AuctionApiException exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Curve Order failed with following error:");
-                Console.WriteLine($"HTTP STATUS: {exception.HttpStatusCode}");
-                Console.WriteLine($"{exception.Message}");
-                Console.ForegroundColor = ConsoleColor.Gray;
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
             }
         }
 
@@ -308,6 +333,10 @@
                 ConsoleHelper.WriteBlockList(response);
             }
             catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
             {
                 WriteException(exception);
             }
@@ -344,11 +373,11 @@
             }
             catch (AuctionApiException exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Get prices failed with following error:");
-                Console.WriteLine($"HTTP STATUS: {exception.HttpStatusCode}");
-                Console.WriteLine($"{exception.Message}");
-                Console.ForegroundColor = ConsoleColor.Gray;
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
             }
         }
 
@@ -365,11 +394,11 @@
             }
             catch (AuctionApiException exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Get portfolio volumes failed with following error:");
-                Console.WriteLine($"HTTP STATUS: {exception.HttpStatusCode}");
-                Console.WriteLine($"{exception.Message}");
-                Console.ForegroundColor = ConsoleColor.Gray;
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
             }
         }
 

@@ -12,7 +12,7 @@
         public string Portfolio { get; set; }
         public string CurrencyCode { get; set; }
         public string UserId { get; set; }
-        public OrderType OrderType { get; set; }
+        public OrderResultType OrderResultType { get; set; }
         public string Name { get; set; }
         public string ExclusiveGroup { get; set; }
         public string LinkedTo { get; set; }
