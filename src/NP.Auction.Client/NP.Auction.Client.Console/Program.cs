@@ -418,7 +418,6 @@
         {
             return new AuthConfig
             {
-                SsoUrl = ConfigurationManager.AppSettings["sso-api-url"],
                 Username = ConfigurationManager.AppSettings["api-username"],
                 Password = ConfigurationManager.AppSettings["api-password"],
                 ClientSecret = ConfigurationManager.AppSettings["api-clientsecret"],
