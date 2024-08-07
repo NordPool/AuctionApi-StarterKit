@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "NPS.Auction.API.gRPC.Protos";
+
+package auction;
+
+service ReasonabilityResultsNotifier {
+  rpc GetReasonabilityResultsStream (google.protobuf.Empty) returns (stream ReasonabilityResultsReply);
+}
+
+message ReasonabilityResultsReply {
+    bool keepAlive = 1;
+    bool hasResults = 2;
+    optional ReasonabilityResultsInfo reasonabilityResultsInfo = 3;
+}
+
+message ReasonabilityResultsInfo {
+  string portfolio = 1;
+  string area = 2;
+  OrderApprovalState OrderApprovalState = 3;
+  repeated ValidatedCurve curves = 4;
+  optional string referenceDay = 5;
+  string auctionId = 6;
+  string orderId = 7;
+  string approvalModifier = 8;
+  ApprovalSource approvalSource = 9;
+}
+
+message ValidatedCurve {
+  string id = 1;
+  int32 timeStep = 2;
+  optional string contractId = 3;
+  bool isValid = 4;
+  optional string validationMessage = 5;
+}
+
+enum OrderApprovalState {
+    Undefined = 0;
+    Approved = 1;
+    NotApproved = 2;
+}
+
+enum ApprovalSource {
+    Automatic = 0;
+    Operator = 1;
+    Member = 2;
+}
