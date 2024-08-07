@@ -64,10 +64,10 @@
             Console.WriteLine($"\tCompany: {portfolio.CompanyName}");
             Console.WriteLine($"\tCurrency: {portfolio.Currency}");
             Console.WriteLine($"\tPermission: {portfolio.Permission}");
-            Console.WriteLine("\tTradable areas for portfolio (area code - name - eic code):");
+            Console.WriteLine("\tTradable areas for portfolio (area code - name - eic code - curve min volume limit - curve max volume limit):");
             foreach (var area in portfolio.Areas)
             {
-                Console.WriteLine($"\t\t{area.Code} - {area.Name} - {area.EicCode}");
+                Console.WriteLine($"\t\t{area.Code} - {area.Name} - {area.EicCode} - ({area.CurveMinVolumeLimit}) - ({area.CurveMaxVolumeLimit})");
             }
             Console.WriteLine("---");
         }
