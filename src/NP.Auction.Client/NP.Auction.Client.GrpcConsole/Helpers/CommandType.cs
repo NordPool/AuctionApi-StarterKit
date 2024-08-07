@@ -4,5 +4,6 @@ public enum CommandType
 {
     None,
     OpenAuctionStatusStream,
+    OpenReasonabilityCheckResultsStream,
     Quit
 }

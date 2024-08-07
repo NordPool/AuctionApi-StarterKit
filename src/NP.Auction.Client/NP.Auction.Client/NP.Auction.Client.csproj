@@ -15,6 +15,7 @@
     <PackageReference Include="Refit" Version="5.2.1" />
     <PackageReference Include="Refit.HttpClientFactory" Version="5.2.1" />
     <Protobuf Include="Protos\auction.proto" GrpcServices="Client" />
+    <Protobuf Include="Protos\reasonabilityResults.proto" GrpcServices="Client" />
   </ItemGroup>
 
 </Project>

@@ -105,6 +105,19 @@
             WriteCurves(curveOrder);
             Console.WriteLine("---");
         }
+        
+        public static void WriteReasonabilityCheckResults(ReasonabilityResultsInfo reasonabilityResultsInfo)
+        {
+            Console.WriteLine("---");
+            Console.WriteLine($"Portfolio: {reasonabilityResultsInfo.Portfolio}");
+            Console.WriteLine($"Area: {reasonabilityResultsInfo.Area}");
+            Console.WriteLine($"OrderApprovalState: {reasonabilityResultsInfo.OrderApprovalState}");
+            Console.WriteLine($"ReferenceDay: {reasonabilityResultsInfo.ReferenceDay}");
+            Console.WriteLine($"ApprovalModifier: {reasonabilityResultsInfo.ApprovalModifier}");
+            Console.WriteLine($"ApprovalSource: {reasonabilityResultsInfo.ApprovalSource}");
+            WriteCurves(reasonabilityResultsInfo);
+            Console.WriteLine("---");
+        }
 
         public static void WriteCurveOrderRequest(CurveOrderRequest curveOrderRequest)
         {
@@ -128,6 +141,19 @@
                 Console.WriteLine("");
             }
         }
+        
+        private static void WriteCurves(ReasonabilityResultsInfo reasonabilityResultsInfo)
+        {
+            Console.WriteLine("Curves:");
+            foreach (var curve in reasonabilityResultsInfo.Curves)
+            {
+                Console.WriteLine($"Contract: {curve.ContractId}");
+                Console.WriteLine($"TimeStep: {curve.TimeStep}");
+                Console.WriteLine($"IsValid: {curve.IsValid}");
+                Console.WriteLine($"ValidationMessage: {curve.ValidationMessage}");
+                Console.WriteLine("");
+            }
+        }
 
         private static void WriteCurves(CurveOrderRequest curveOrderRequest)
         {
@@ -146,7 +172,7 @@
             if (auction.State == AuctionStateType.Open)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"ModifyCurve\", \"ModifyBlock\", \"CancelCurve\",  \"CancelBlock\", \"Auctions\", \"AuctionContracts\", \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"ModifyCurve\", \"ModifyBlock\", \"CancelCurve\",  \"CancelBlock\", \"Auctions\", \"AuctionContracts\", \"ReasonabilityCheckResults\",  \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -157,7 +183,7 @@
             if (auction.State == AuctionStateType.ResultsPublished)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"Trades\", \"Prices\", \"PortfolioVolumes\", \"Auctions\", \"AuctionContracts\", \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"Trades\", \"Prices\", \"PortfolioVolumes\", \"Auctions\", \"AuctionContracts\", \"ReasonabilityCheckResults\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -167,7 +193,7 @@
 
             if (auction.State == AuctionStateType.Closed)
             {
-                Console.WriteLine("Available options: \"Orders\", \"Auctions\", \"AuctionContracts\", \"Exit\". Specify one of the options:");
+                Console.WriteLine("Available options: \"Orders\", \"Auctions\", \"AuctionContracts\", \"ReasonabilityCheckResults\", \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -379,6 +405,7 @@
         CancelBlock,
         Auctions,
         Exit,
-        AuctionContracts
+        AuctionContracts,
+        ReasonabilityCheckResults,
     }
 }

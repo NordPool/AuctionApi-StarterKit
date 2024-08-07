@@ -52,6 +52,15 @@
         /// <returns>Collection of prices <see cref="PricesResponse" /></returns>
         [Get("/auctions/{auctionId}/prices")]
         Task<PricesResponse> GetPricesAsync([Url] string auctionId);
+        
+        /// <summary>
+        ///     Get Reasonability check results for selected auction and order id.
+        /// </summary>
+        /// <param name="externalAuctionId">Auction id for which the reasonability check results should be requested</param> 
+        /// <param name="orderId">Order id for which the reasonability check results should be requested</param> 
+        /// <returns>Collection of prices <see cref="ReasonabilityResultsInfo" /></returns>
+        [Get("/auctions/{externalAuctionId}/orders/{orderId}/results")]
+        Task<ReasonabilityResultsInfo> GetReasonabilityCheckResultsAsync([Url] string externalAuctionId, [Url] Guid orderId); //TODO
 
         /// <summary>
         ///     Get portfolio net volumes for selected auction.
