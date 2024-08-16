@@ -87,6 +87,10 @@
                         await HandleAuctionContractsCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
+                    case CommandType.ReasonabilityCheckResults:
+                        await HandleReasonabilityCheckResultsCommand();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
                 }
             }
 
@@ -190,6 +194,29 @@
             var selectedAuctionId = Console.ReadLine();
             _selectedAuction = _availableAuctions.First(x => x.Id == selectedAuctionId);
             ConsoleHelper.WriteDetailedAuctionInfo(_selectedAuction);
+        }
+        
+        private static async Task HandleReasonabilityCheckResultsCommand()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine("Provide order id for reasonability check results:");
+            var orderId = RequestOrderId();
+            try
+            {
+                var reasonabilityCheckResults = await _auctionApiClient.GetReasonabilityCheckResultsAsync(_selectedAuction.Id, orderId);
+                Console.WriteLine("Reasonability Check Results:");
+                ConsoleHelper.WriteReasonabilityCheckResults(reasonabilityCheckResults);
+
+                
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
         }
 
         private static async Task HandleModifyBlock()
