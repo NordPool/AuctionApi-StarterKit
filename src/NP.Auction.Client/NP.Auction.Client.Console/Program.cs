@@ -51,6 +51,14 @@
                         await HandlePlaceBlocksCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
+                    case CommandType.GetAllCurveOrderVersions:
+                        await HandleGetAllCurveOrderVersions();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
+                    case CommandType.GetAllBlockOrderVersions:
+                        await HandleGetAllBlockOrderVersions();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
                     case CommandType.Trades:
                         await HandleTradesCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
@@ -69,6 +77,14 @@
                         continue;
                     case CommandType.ModifyCurve:
                         await HandleModifyCurve();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
+                    case CommandType.CancelAllOrders:
+                        await HandleCancelAllOrders();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue; 
+                    case CommandType.CancelAllOrdersForPortfolios:
+                        await HandleCancelAllOrdersForPortfolios();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.Auctions:
@@ -171,8 +187,124 @@
                 await _auctionApiClient.CancelCurveOrder(orderId);
 
                 var cancelledOrder = await _auctionApiClient.GetCurveOrderAsync(orderId);
-                Console.WriteLine("Cancelled block order:");
+                Console.WriteLine("Cancelled curve order:");
                 ConsoleHelper.WriteCurveOrder(cancelledOrder);
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
+        private static async Task HandleCancelAllOrders()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine($"Cancelling all orders for specified portfolios and auction {_selectedAuction.Id}");
+
+            try
+            {
+                var cancelAllOrdersResponse = await _auctionApiClient.CancelAllOrdersForAuctionAsync(_selectedAuction.Id);
+                if (cancelAllOrdersResponse?.CancelledOrderIds?.Count > 0)
+                {
+                    Console.WriteLine("Cancelled Order Ids:");
+                    Console.WriteLine(string.Join(",", cancelAllOrdersResponse.CancelledOrderIds));
+                }
+                else
+                {
+                    Console.WriteLine("No orders were cancelled");
+                }
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
+        private static async Task HandleCancelAllOrdersForPortfolios()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine($"Providing portfolios to which orders should be cancelled:");
+
+            var portfolioIds = RequestPortfolioIds();
+
+            Console.WriteLine($"Cancelling all orders for specified portfolios and auction {_selectedAuction.Id}");
+
+            try
+            {
+                var cancelAllOrdersResponse = await _auctionApiClient.CancelAllOrdersForAuctionAndPortfoliosAsync(_selectedAuction.Id, portfolioIds);
+                if (cancelAllOrdersResponse?.CancelledOrderIds?.Count > 0)
+                {
+                    Console.WriteLine("Cancelled Order Ids:");
+                    Console.WriteLine(string.Join(",", cancelAllOrdersResponse.CancelledOrderIds));
+                }
+                else
+                {
+                    Console.WriteLine("No orders were cancelled");
+                }
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
+        private static async Task HandleGetAllCurveOrderVersions()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine("Provide curve order id for getting all versions:");
+
+            var orderId = RequestOrderId();
+
+            try
+            {
+                var curveOrderVersions= await _auctionApiClient.GetCurveOrderVersionsAsync(orderId);
+                Console.WriteLine("Curve order versions:");
+                foreach (var curveOrderVersion in curveOrderVersions.OrderBy(c => c.Version))
+                {
+                    Console.WriteLine(
+                        $"----------------------Version {curveOrderVersion.Version}-------------------------");
+                    ConsoleHelper.WriteCurveOrder(curveOrderVersion);
+                }
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
+        private static async Task HandleGetAllBlockOrderVersions()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine("Provide block order id for getting all versions:");
+
+            var orderId = RequestOrderId();
+
+            try
+            {
+                var blockOrderVersions = await _auctionApiClient.GetAllBlockOrderVersionsAsync(orderId);
+                Console.WriteLine("Block order versions:");
+                foreach (var blockOrderVersion in blockOrderVersions.OrderBy(b => b.Version))
+                {
+                    Console.WriteLine(
+                        $"----------------------Version {blockOrderVersion.Version}-------------------------");
+                    ConsoleHelper.WriteBlockList(blockOrderVersion);
+                }
             }
             catch (AuctionApiException exception)
             {
@@ -429,6 +561,25 @@
             }
         }
 
+        private static string[] RequestPortfolioIds()
+        {
+            string[] portfolioIds;
+            while (true)
+            {
+                try
+                {
+                    portfolioIds = Console.ReadLine()?.Split(',').Select(p => p.Trim()).ToArray();
+                    break;
+                }
+                catch (Exception _)
+                {
+                    Console.WriteLine("Portfolios should be separated by , character. Please try again: ");
+                }
+            }
+            
+            return portfolioIds;
+        }
+
         private static Guid RequestOrderId()
         {
             Guid orderId;
@@ -440,6 +591,7 @@
 
             return orderId;
         }
+
 
         private static AuthConfig ReadAuthorizationConfig()
         {

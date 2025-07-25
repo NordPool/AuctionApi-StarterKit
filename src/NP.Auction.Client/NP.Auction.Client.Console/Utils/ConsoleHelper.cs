@@ -172,7 +172,7 @@
             if (auction.State == AuctionStateType.Open)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"ModifyCurve\", \"ModifyBlock\", \"CancelCurve\",  \"CancelBlock\", \"Auctions\", \"AuctionContracts\", \"ReasonabilityCheckResults\",  \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"GetAllCurveOrderVersions\", \"GetAllBlockOrderVersions\", \"ModifyCurve\", \"ModifyBlock\", \"CancelCurve\",  \"CancelBlock\", \"CancelAllOrders\", \"CancelAllOrdersForPortfolios\", \"Auctions\", \"AuctionContracts\", \"ReasonabilityCheckResults\",  \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -394,6 +394,8 @@
     {
         None,
         Orders,
+        GetAllCurveOrderVersions,
+        GetAllBlockOrderVersions,
         Trades,
         Prices,
         PortfolioVolumes,
@@ -403,9 +405,12 @@
         ModifyBlock,
         CancelCurve,
         CancelBlock,
+        CancelAllOrders,
+        CancelAllOrdersForPortfolios,
         Auctions,
         Exit,
         AuctionContracts,
         ReasonabilityCheckResults,
+
     }
 }

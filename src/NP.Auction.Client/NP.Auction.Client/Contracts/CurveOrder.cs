@@ -16,5 +16,6 @@
         public List<Curve> Curves { get; set; }
         public string Comment { get; set; }
         public string CompanyName { get; set; }
+        public int Version { get; set; }
     }
 }
