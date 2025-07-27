@@ -51,12 +51,20 @@
                         await HandlePlaceBlocksCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
+                    case CommandType.PlaceLinkedEg:
+                        await HandlePlaceLinkedEgCommand();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
                     case CommandType.GetAllCurveOrderVersions:
                         await HandleGetAllCurveOrderVersions();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.GetAllBlockOrderVersions:
                         await HandleGetAllBlockOrderVersions();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
+                    case CommandType.GetAllLinkedEgOrderVersions:
+                        await HandleGetAllLinkedEgOrderVersions();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.Trades:
@@ -77,6 +85,14 @@
                         continue;
                     case CommandType.ModifyCurve:
                         await HandleModifyCurve();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
+                    case CommandType.CancelLinkedEg:
+                        await HandleCancelLinkedEgOrder();
+                        command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
+                        continue;
+                    case CommandType.ModifyLinkedEg:
+                        await HandleModifyLinkedEg();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.CancelAllOrders:
@@ -200,6 +216,37 @@
             }
         }
 
+        private static async Task HandleCancelLinkedEgOrder()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine("Provide linked eg order id for cancellation:");
+
+            var orderId = RequestOrderId();
+
+            try
+            {
+                var existingLinkedEgOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
+                Console.WriteLine("Existing linked eg order:");
+                ConsoleHelper.WriteBlockList(existingLinkedEgOrder);
+
+                Console.WriteLine("Cancelling linked eg order...");
+
+                await _auctionApiClient.CancelLinkedEgOrder(orderId);
+
+                var cancelledOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
+                Console.WriteLine("Cancelled linked eg order:");
+                ConsoleHelper.WriteBlockList(cancelledOrder);
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
         private static async Task HandleCancelAllOrders()
         {
             Console.WriteLine("-------------");
@@ -305,6 +352,76 @@
                         $"----------------------Version {blockOrderVersion.Version}-------------------------");
                     ConsoleHelper.WriteBlockList(blockOrderVersion);
                 }
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
+        private static async Task HandleGetAllLinkedEgOrderVersions()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine("Provide linked eg order id for getting all versions:");
+
+            var orderId = RequestOrderId();
+
+            try
+            {
+                var linkedEgOrderVersions = await _auctionApiClient.GetAllLinkedEgOrderVersionsAsync(orderId);
+                Console.WriteLine("Linked eg order versions:");
+                foreach (var linkedEgOrderVersion in linkedEgOrderVersions.OrderBy(b => b.Version))
+                {
+                    Console.WriteLine(
+                        $"----------------------Version {linkedEgOrderVersion.Version}-------------------------");
+                    ConsoleHelper.WriteBlockList(linkedEgOrderVersion);
+                }
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
+        private static async Task HandleModifyLinkedEg()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine("Provide linked eg order id for modification:");
+
+            var orderId = RequestOrderId();
+
+            try
+            {
+                var existingLinkedEgOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
+                Console.WriteLine("Existing linked eg order:");
+                ConsoleHelper.WriteBlockList(existingLinkedEgOrder);
+                if (!existingLinkedEgOrder.Blocks.Any() ||
+                    existingLinkedEgOrder.Blocks.All(x => x.State == OrderStateType.Cancelled))
+                {
+                    Console.WriteLine("Existing linked eg order cancelled, modifying by adding blocks...");
+                    existingLinkedEgOrder.Blocks = OrderGenerator.GenerateBlocks(BlockOrderType.LinkedExclusiveGroup, _selectedAuction)
+                        .ToList();
+                }
+                else
+                {
+                    Console.WriteLine("Modifying volume for first block and first period..");
+                    existingLinkedEgOrder.Blocks.First().Periods.First().Volume += 50;
+                }
+
+
+                await _auctionApiClient.ModifyLinkedEgOrder(orderId, existingLinkedEgOrder.Blocks);
+
+                var modifiedOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
+                Console.WriteLine("Modified linked eg order:");
+                ConsoleHelper.WriteBlockList(modifiedOrder);
             }
             catch (AuctionApiException exception)
             {
@@ -487,8 +604,49 @@
 
             try
             {
-                var response = await _auctionApiClient.PlaceBlockOrder(blockOrderRequest);
+                var response = await _auctionApiClient.PlaceLinkedEgOrder(blockOrderRequest);
                 Console.WriteLine("Block order placed successfully:");
+                ConsoleHelper.WriteBlockList(response);
+            }
+            catch (AuctionApiException exception)
+            {
+                WriteException(exception);
+            }
+            catch (ApiException exception)
+            {
+                WriteException(exception);
+            }
+        }
+
+        private static async Task HandlePlaceLinkedEgCommand()
+        {
+            Console.WriteLine("-------------");
+            Console.WriteLine("Provide portfolio name for placing linked eg order:");
+            var portfolioName = Console.ReadLine();
+            Console.WriteLine("Provide area code for placing linked eg order:");
+            var areaCode = Console.ReadLine();
+            Console.WriteLine("Provide resolution for linked eg order (900, 1800, 3600)");
+
+            int resolution;
+            while (!int.TryParse(Console.ReadLine(), out resolution))
+            {
+                Console.WriteLine("Provide again valid resolution for linked eg order (900, 1800, 3600):");
+            }
+
+            Console.WriteLine(
+                $"Generating static block order ({BlockOrderType.LinkedExclusiveGroup}) for portfolio {portfolioName} with area {areaCode}");
+            var linkdedEgOrderRequest =
+                OrderGenerator.GenerateStaticBlockOrder(portfolioName, areaCode, _selectedAuction, BlockOrderType.LinkedExclusiveGroup, resolution);
+
+            Console.WriteLine("Generated linked eg order:");
+            ConsoleHelper.WriteBlockOrderRequest(linkdedEgOrderRequest);
+
+            Console.WriteLine("Sending generated linked eg order to Auction API...");
+
+            try
+            {
+                var response = await _auctionApiClient.PlaceLinkedEgOrder(linkdedEgOrderRequest);
+                Console.WriteLine("Linked eg order order placed successfully:");
                 ConsoleHelper.WriteBlockList(response);
             }
             catch (AuctionApiException exception)
