@@ -22,7 +22,7 @@
         }
 
         public static BlockOrderRequest GenerateStaticBlockOrder(string portfolio, string areaCode,
-            Auction auction, BlockOrderType blockOrderType = BlockOrderType.Regular)
+            Auction auction, BlockOrderType blockOrderType = BlockOrderType.Regular, int? resolution = null)
         {
             return new BlockOrderRequest
             {
@@ -30,12 +30,16 @@
                 AuctionId = auction.Id,
                 Portfolio = portfolio,
                 Comment = $"BlockOrder_{areaCode}_{portfolio}",
-                Blocks = GenerateBlocks(blockOrderType, auction).ToList()
+                Blocks = GenerateBlocks(blockOrderType, auction, resolution).ToList()
             };
         }
 
-        public static IEnumerable<Block> GenerateBlocks(BlockOrderType blockOrderType, Auction auction)
+        public static IEnumerable<Block> GenerateBlocks(BlockOrderType blockOrderType, Auction auction, int? resolution = null)
         {
+            var contracts = resolution == null
+                ? auction.Contracts
+                : auction.Contracts.Where(c => (c.DeliveryEnd - c.DeliveryStart).TotalSeconds == resolution)
+                    .OrderBy(c => c.DeliveryStart).ToList();
             var blocks = new List<Block>
             {
                 new Block
@@ -48,12 +52,12 @@
                     {
                         new Period
                         {
-                            ContractId = auction.Contracts[0].Id,
+                            ContractId = contracts[0].Id,
                             Volume = 200
                         },
                         new Period
                         {
-                            ContractId = auction.Contracts[1].Id,
+                            ContractId = contracts[1].Id,
                             Volume = 200
                         }
                     }
@@ -79,12 +83,39 @@
                     {
                         new Period
                         {
-                            ContractId = auction.Contracts[0].Id,
+                            ContractId = contracts[0].Id,
                             Volume = 150
                         },
                         new Period
                         {
-                            ContractId = auction.Contracts[1].Id,
+                            ContractId = contracts[1].Id,
+                            Volume = 150
+                        }
+                    }
+                });
+            }
+            
+            if (blockOrderType == BlockOrderType.LinkedExclusiveGroup)
+            {
+                var exclusiveGroupName = "ExclGroup_1";
+                blocks.First().ExclusiveGroup = exclusiveGroupName;
+                blocks.Add(new Block
+                {
+                    MinimumAcceptanceRatio = 1,
+                    ExclusiveGroup = exclusiveGroupName,
+                    Name = blocks.First().Name + "_Child",
+                    Price = 50,
+                    LinkedTo = blocks.First().Name,
+                    Periods = new List<Period>
+                    {
+                        new Period
+                        {
+                            ContractId = contracts[0].Id,
+                            Volume = 150
+                        },
+                        new Period
+                        {
+                            ContractId = contracts[1].Id,
                             Volume = 150
                         }
                     }
@@ -200,6 +231,7 @@
         ExclusiveGroup,
         Linked,
         Profiled,
-        Spread
+        Spread,
+        LinkedExclusiveGroup
     }
 }
