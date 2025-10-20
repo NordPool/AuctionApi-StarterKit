@@ -60,7 +60,7 @@
         /// <param name="orderId">Order id for which the reasonability check results should be requested</param> 
         /// <returns>Collection of prices <see cref="ReasonabilityResultsInfo" /></returns>
         [Get("/auctions/{externalAuctionId}/orders/{orderId}/results")]
-        Task<ReasonabilityResultsInfo> GetReasonabilityCheckResultsAsync([Url] string externalAuctionId, [Url] Guid orderId); //TODO
+        Task<ReasonabilityResultsInfo> GetReasonabilityCheckResultsAsync([Url] string externalAuctionId, [Url] Guid orderId);
 
         /// <summary>
         ///     Get portfolio net volumes for selected auction.
@@ -78,6 +78,23 @@
         /// <returns>Auction contracts with multi resolution <see cref="AuctionMultiResolutionResponse" /></returns>
         [Get("/auctions/{auctionId}")]
         Task<AuctionMultiResolutionResponse> GetAuctionAsync([Url] string auctionId);
+
+        /// <summary>
+        ///     Cancel all orders for all portfolios for specified auction that user has access to.
+        /// </summary>
+        /// <param name="auctionId">Auction id for which orders should be cancelled</param> 
+        /// <returns>Collection of cancelled order ids <see cref="CancelAllOrdersResponse" /></returns>
+        [Delete("/auctions/{auctionId}/orders/cancelall")]
+        Task<CancelAllOrdersResponse> CancelAllOrdersForAuctionAsync([Url] string auctionId);
+
+        /// <summary>
+        ///     Cancel all orders for specified portfolios and auction that user has access to.
+        /// </summary>
+        /// <param name="auctionId">Auction id for which orders should be cancelled</param>
+        /// <param name="portfolios">Portfolios for which orders should be cancelled</param>  
+        /// <returns>Collection of cancelled order ids <see cref="CancelAllOrdersResponse" /></returns>
+        [Delete("/auctions/{auctionId}/orders/cancel")]
+        Task<CancelAllOrdersResponse> CancelAllOrdersForAuctionAndPortfoliosAsync([Url] string auctionId, [Query(CollectionFormat.Multi)] string[] portfolios);
 
         /// <summary>
         ///     Post a new curve order through Auction API
@@ -104,12 +121,28 @@
         Task<BlockList> GetBlockOrderAsync([Url] Guid orderId);
 
         /// <summary>
+        ///     Get all block order versions based on provided order id
+        /// </summary>
+        /// <param name="orderId">Order id of the block order</param>
+        /// <returns>All block order versions for the specified order id <see cref="IEnumerable{BlockList}" /></returns>
+        [Get("/blockorders/{orderId}/versions")]
+        Task<IEnumerable<BlockList>> GetAllBlockOrderVersionsAsync([Url] Guid orderId);
+
+        /// <summary>
         ///     Gets a curve order based on provided order id
         /// </summary>
         /// <param name="orderId">Order id of the curve order</param>
         /// <returns>A curve order for the specified order id <see cref="CurveOrder" /></returns>
         [Get("/curveorders/{orderId}")]
         Task<CurveOrder> GetCurveOrderAsync([Url] Guid orderId);
+
+        /// <summary>
+        ///     Get all curve order versions based on provided order id
+        /// </summary>
+        /// <param name="orderId">Order id of the curve order</param>
+        /// <returns>All curve order versions for the specified order id <see cref="IEnumerable{CurveOrder}" /></returns>
+        [Get("/curveorders/{orderId}/versions")]
+        Task<IEnumerable<CurveOrder>> GetCurveOrderVersionsAsync([Url] Guid orderId);
 
         /// <summary>
         ///     Modify existing curve order
@@ -134,6 +167,42 @@
         /// <returns></returns>
         [Patch("/blockorders/{orderId}")]
         Task PatchBlockOrderAsync([Url] Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
+
+        /// <summary>
+        ///     Get all linked eg order versions based on provided order id
+        /// </summary>
+        /// <param name="orderId">Order id of the block order</param>
+        /// <returns>All linked eg order versions for the specified order id <see cref="IEnumerable{BlockList}" /></returns>
+        [Get("/linkedegorders/{orderId}/versions")]
+        Task<IEnumerable<BlockList>> GetAllLinkedEgOrderVersionsAsync([Url] Guid orderId);
+
+        /// <summary>
+        ///     Gets a linked eg order based on provided order id
+        /// </summary>
+        /// <param name="orderId">Order id of the linked eg order</param>
+        /// <returns>A linked eg order for the specified order id <see cref="BlockList" /></returns>
+        [Get("/linkedegorders/{orderId}")]
+        Task<BlockList> GetLinkedEgOrderAsync([Url] Guid orderId);
+
+        /// <summary>
+        ///     Post a new linked eg order through Auction API
+        /// </summary>
+        /// <param name="blockOrderRequest">linked eg order to be placed<see cref="BlockOrderRequest" /></param>
+        /// <returns>Placed linked eg order<see cref="BlockList" /></returns>
+        [Post("/linkedegorders")]
+        Task<BlockList> PostLinkedEgOrderAsync([Body] BlockOrderRequest blockOrderRequest);
+
+        /// <summary>
+        ///     Modify existing linked eg order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <param name="blocks">
+        ///     Blocks to modify (new blocks will be added, if empty list is provided then block order is
+        ///     cancelled
+        /// </param>
+        /// <returns></returns>
+        [Patch("/linkedegorders/{orderId}")]
+        Task PatchLinkedEgOrderAsync([Url] Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
     }
 
     /// <summary>
@@ -181,9 +250,27 @@
             }
         }
 
+        public static async Task<BlockList> PlaceLinkedEgOrder(this IAuctionApiClient apiClient,
+            BlockOrderRequest blockOrder)
+        {
+            try
+            {
+                return await apiClient.PostLinkedEgOrderAsync(blockOrder);
+            }
+            catch (ApiException exception)
+            {
+                throw ConstructApiException(exception);
+            }
+        }
+
         public static async Task CancelBlockOrder(this IAuctionApiClient apiClient, Guid orderId)
         {
             await apiClient.ModifyBlockOrder(orderId, new List<Block>());
+        }
+
+        public static async Task CancelLinkedEgOrder(this IAuctionApiClient apiClient, Guid orderId)
+        {
+            await apiClient.ModifyLinkedEgOrder(orderId, new List<Block>());
         }
 
         public static async Task CancelCurveOrder(this IAuctionApiClient apiClient, Guid orderId)
@@ -203,6 +290,17 @@
             }
         }
 
+        public static async Task ModifyLinkedEgOrder(this IAuctionApiClient apiClient, Guid orderId, List<Block> blocks)
+        {
+            try
+            {
+                await apiClient.PatchLinkedEgOrderAsync(orderId, new BlockOrderPatchRequest { Blocks = blocks });
+            }
+            catch (ApiException exception)
+            {
+                throw ConstructApiException(exception);
+            }
+        }
         public static async Task<PricesResponse> GetPrices(this IAuctionApiClient apiClient,
             string auctionId)
         {
