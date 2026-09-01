@@ -55,8 +55,8 @@
                         await HandlePlaceBlocksCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
-                    case CommandType.PlaceLinkedEg:
-                        await HandlePlaceLinkedEgCommand();
+                    case CommandType.PlaceExclusiveGroup:
+                        await HandlePlaceExclusiveGroupCommand();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.GetAllCurveOrderVersions:
@@ -67,8 +67,8 @@
                         await HandleGetAllBlockOrderVersions();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
-                    case CommandType.GetAllLinkedEgOrderVersions:
-                        await HandleGetAllLinkedEgOrderVersions();
+                    case CommandType.GetAllExclusiveGroupOrderVersions:
+                        await HandleGetAllExclusiveGroupOrderVersions();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.Trades:
@@ -91,12 +91,12 @@
                         await HandleModifyCurve();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
-                    case CommandType.CancelLinkedEg:
-                        await HandleCancelLinkedEgOrder();
+                    case CommandType.CancelExclusiveGroup:
+                        await HandleCancelExclusiveGroupOrder();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
-                    case CommandType.ModifyLinkedEg:
-                        await HandleModifyLinkedEg();
+                    case CommandType.ModifyExclusiveGroup:
+                        await HandleModifyExclusiveGroup();
                         command = ConsoleHelper.RequestSelectedAuctionCommand(_selectedAuction);
                         continue;
                     case CommandType.CancelAllOrders:
@@ -220,25 +220,25 @@
             }
         }
 
-        private static async Task HandleCancelLinkedEgOrder()
+        private static async Task HandleCancelExclusiveGroupOrder()
         {
             Console.WriteLine("-------------");
-            Console.WriteLine("Provide linked eg order id for cancellation:");
+            Console.WriteLine("Provide exclusive group order id for cancellation:");
 
             var orderId = RequestOrderId();
 
             try
             {
-                var existingLinkedEgOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
-                Console.WriteLine("Existing linked eg order:");
-                ConsoleHelper.WriteBlockList(existingLinkedEgOrder);
+                var existingOrder = await _auctionApiClient.GetExclusiveGroupOrderAsync(orderId);
+                Console.WriteLine("Existing exclusive group order:");
+                ConsoleHelper.WriteBlockList(existingOrder);
 
-                Console.WriteLine("Cancelling linked eg order...");
+                Console.WriteLine("Cancelling exclusive group order...");
 
-                await _auctionApiClient.CancelLinkedEgOrder(orderId);
+                await _auctionApiClient.CancelExclusiveGroupOrder(orderId);
 
-                var cancelledOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
-                Console.WriteLine("Cancelled linked eg order:");
+                var cancelledOrder = await _auctionApiClient.GetExclusiveGroupOrderAsync(orderId);
+                Console.WriteLine("Cancelled exclusive group order:");
                 ConsoleHelper.WriteBlockList(cancelledOrder);
             }
             catch (AuctionApiException exception)
@@ -367,22 +367,22 @@
             }
         }
 
-        private static async Task HandleGetAllLinkedEgOrderVersions()
+        private static async Task HandleGetAllExclusiveGroupOrderVersions()
         {
             Console.WriteLine("-------------");
-            Console.WriteLine("Provide linked eg order id for getting all versions:");
+            Console.WriteLine("Provide exclusive group order id for getting all versions:");
 
             var orderId = RequestOrderId();
 
             try
             {
-                var linkedEgOrderVersions = await _auctionApiClient.GetAllLinkedEgOrderVersionsAsync(orderId);
-                Console.WriteLine("Linked eg order versions:");
-                foreach (var linkedEgOrderVersion in linkedEgOrderVersions.OrderBy(b => b.Version))
+                var versions = await _auctionApiClient.GetAllExclusiveGroupOrderVersionsAsync(orderId);
+                Console.WriteLine("Exclusive group order versions:");
+                foreach (var version in versions.OrderBy(b => b.Version))
                 {
                     Console.WriteLine(
-                        $"----------------------Version {linkedEgOrderVersion.Version}-------------------------");
-                    ConsoleHelper.WriteBlockList(linkedEgOrderVersion);
+                        $"----------------------Version {version.Version}-------------------------");
+                    ConsoleHelper.WriteBlockList(version);
                 }
             }
             catch (AuctionApiException exception)
@@ -395,36 +395,35 @@
             }
         }
 
-        private static async Task HandleModifyLinkedEg()
+        private static async Task HandleModifyExclusiveGroup()
         {
             Console.WriteLine("-------------");
-            Console.WriteLine("Provide linked eg order id for modification:");
+            Console.WriteLine("Provide exclusive group order id for modification:");
 
             var orderId = RequestOrderId();
 
             try
             {
-                var existingLinkedEgOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
-                Console.WriteLine("Existing linked eg order:");
-                ConsoleHelper.WriteBlockList(existingLinkedEgOrder);
-                if (!existingLinkedEgOrder.Blocks.Any() ||
-                    existingLinkedEgOrder.Blocks.All(x => x.State == OrderStateType.Cancelled))
+                var existingOrder = await _auctionApiClient.GetExclusiveGroupOrderAsync(orderId);
+                Console.WriteLine("Existing exclusive group order:");
+                ConsoleHelper.WriteBlockList(existingOrder);
+                if (!existingOrder.Blocks.Any() ||
+                    existingOrder.Blocks.All(x => x.State == OrderStateType.Cancelled))
                 {
-                    Console.WriteLine("Existing linked eg order cancelled, modifying by adding blocks...");
-                    existingLinkedEgOrder.Blocks = OrderGenerator.GenerateBlocks(BlockOrderType.LinkedExclusiveGroup, _selectedAuction)
+                    Console.WriteLine("Existing exclusive group order cancelled, modifying by adding blocks...");
+                    existingOrder.Blocks = OrderGenerator.GenerateBlocks(BlockOrderType.ExclusiveGroup, _selectedAuction)
                         .ToList();
                 }
                 else
                 {
                     Console.WriteLine("Modifying volume for first block and first period..");
-                    existingLinkedEgOrder.Blocks.First().Periods.First().Volume += 50;
+                    existingOrder.Blocks.First().Periods.First().Volume += 50;
                 }
 
+                await _auctionApiClient.ModifyExclusiveGroupOrder(orderId, existingOrder.Blocks);
 
-                await _auctionApiClient.ModifyLinkedEgOrder(orderId, existingLinkedEgOrder.Blocks);
-
-                var modifiedOrder = await _auctionApiClient.GetLinkedEgOrderAsync(orderId);
-                Console.WriteLine("Modified linked eg order:");
+                var modifiedOrder = await _auctionApiClient.GetExclusiveGroupOrderAsync(orderId);
+                Console.WriteLine("Modified exclusive group order:");
                 ConsoleHelper.WriteBlockList(modifiedOrder);
             }
             catch (AuctionApiException exception)
@@ -591,15 +590,19 @@
             var portfolioName = Console.ReadLine();
             Console.WriteLine("Provide area code for placing block order:");
             var areaCode = Console.ReadLine();
-            Console.WriteLine("Provide block type (\"Regular\", \"Linked\", \"Profiled\", \"ExclusiveGroup\", \"Spread\"):");
+            Console.WriteLine("Provide block type (\"Regular\", \"Linked\", \"Profiled\", \"Spread\"):");
             BlockOrderType blockOrderType;
-            while (!Enum.TryParse(Console.ReadLine(), out blockOrderType))
-                Console.WriteLine("Incorrect option specified! Try again.");
+            while (!Enum.TryParse(Console.ReadLine(), out blockOrderType) ||
+                   blockOrderType == BlockOrderType.ExclusiveGroup ||
+                   blockOrderType == BlockOrderType.LinkedExclusiveGroup)
+                Console.WriteLine("Incorrect option specified! Try again (\"Regular\", \"Linked\", \"Profiled\", \"Spread\").");
+
+            var resolution = RequestResolution();
 
             Console.WriteLine(
                 $"Generating static block order ({blockOrderType}) for portfolio {portfolioName} with area {areaCode}");
             var blockOrderRequest =
-                OrderGenerator.GenerateStaticBlockOrder(portfolioName, areaCode, _selectedAuction, blockOrderType);
+                OrderGenerator.GenerateStaticBlockOrder(portfolioName, areaCode, _selectedAuction, blockOrderType, resolution);
 
             Console.WriteLine("Generated block order:");
             ConsoleHelper.WriteBlockOrderRequest(blockOrderRequest);
@@ -608,7 +611,7 @@
 
             try
             {
-                var response = await _auctionApiClient.PlaceLinkedEgOrder(blockOrderRequest);
+                var response = await _auctionApiClient.PlaceBlockOrder(blockOrderRequest);
                 Console.WriteLine("Block order placed successfully:");
                 ConsoleHelper.WriteBlockList(response);
             }
@@ -622,35 +625,35 @@
             }
         }
 
-        private static async Task HandlePlaceLinkedEgCommand()
+        private static async Task HandlePlaceExclusiveGroupCommand()
         {
             Console.WriteLine("-------------");
-            Console.WriteLine("Provide portfolio name for placing linked eg order:");
+            Console.WriteLine("Provide portfolio name for placing exclusive group order:");
             var portfolioName = Console.ReadLine();
-            Console.WriteLine("Provide area code for placing linked eg order:");
+            Console.WriteLine("Provide area code for placing exclusive group order:");
             var areaCode = Console.ReadLine();
-            Console.WriteLine("Provide resolution for linked eg order (900, 1800, 3600)");
+            Console.WriteLine("Provide exclusive group type (\"ExclusiveGroup\", \"LinkedExclusiveGroup\"):");
+            BlockOrderType blockOrderType;
+            while (!Enum.TryParse(Console.ReadLine(), out blockOrderType) ||
+                   (blockOrderType != BlockOrderType.ExclusiveGroup && blockOrderType != BlockOrderType.LinkedExclusiveGroup))
+                Console.WriteLine("Incorrect option specified! Try again (\"ExclusiveGroup\", \"LinkedExclusiveGroup\").");
 
-            int resolution;
-            while (!int.TryParse(Console.ReadLine(), out resolution))
-            {
-                Console.WriteLine("Provide again valid resolution for linked eg order (900, 1800, 3600):");
-            }
+            var resolution = RequestResolution();
 
             Console.WriteLine(
-                $"Generating static block order ({BlockOrderType.LinkedExclusiveGroup}) for portfolio {portfolioName} with area {areaCode}");
-            var linkdedEgOrderRequest =
-                OrderGenerator.GenerateStaticBlockOrder(portfolioName, areaCode, _selectedAuction, BlockOrderType.LinkedExclusiveGroup, resolution);
+                $"Generating static exclusive group order ({blockOrderType}) for portfolio {portfolioName} with area {areaCode}");
+            var exclusiveGroupOrderRequest =
+                OrderGenerator.GenerateStaticBlockOrder(portfolioName, areaCode, _selectedAuction, blockOrderType, resolution);
 
-            Console.WriteLine("Generated linked eg order:");
-            ConsoleHelper.WriteBlockOrderRequest(linkdedEgOrderRequest);
+            Console.WriteLine("Generated exclusive group order:");
+            ConsoleHelper.WriteBlockOrderRequest(exclusiveGroupOrderRequest);
 
-            Console.WriteLine("Sending generated linked eg order to Auction API...");
+            Console.WriteLine("Sending generated exclusive group order to Auction API...");
 
             try
             {
-                var response = await _auctionApiClient.PlaceLinkedEgOrder(linkdedEgOrderRequest);
-                Console.WriteLine("Linked eg order order placed successfully:");
+                var response = await _auctionApiClient.PlaceExclusiveGroupOrder(exclusiveGroupOrderRequest);
+                Console.WriteLine("Exclusive group order placed successfully:");
                 ConsoleHelper.WriteBlockList(response);
             }
             catch (AuctionApiException exception)
@@ -754,6 +757,19 @@
             return orderId;
         }
 
+        private static int RequestResolution()
+        {
+            var validValues = new[] { 900, 1800, 3600 };
+            Console.WriteLine("Provide resolution in seconds (900, 1800, 3600):");
+            var input = Console.ReadLine();
+            while (!int.TryParse(input, out var resolution) || !validValues.Contains(resolution))
+            {
+                Console.WriteLine("Invalid resolution. Please enter 900, 1800, or 3600:");
+                input = Console.ReadLine();
+            }
+            return int.Parse(input);
+        }
+
 
         private static AuthConfig ReadAuthorizationConfig()
         {
@@ -805,11 +821,6 @@
             if (blockList.Blocks.Any(x => x.IsSpreadBlock))
             {
                 return BlockOrderType.Spread;
-            }
-
-            if (blockList.Blocks.Any(x => x.IsExclusiveGroup))
-            {
-                return BlockOrderType.ExclusiveGroup;
             }
 
             if (blockList.Blocks.Any(x => x.IsProfiledBlock))

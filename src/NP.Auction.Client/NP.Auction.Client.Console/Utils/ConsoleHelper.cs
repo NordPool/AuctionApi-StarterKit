@@ -172,7 +172,7 @@
             if (auction.State == AuctionStateType.Open)
             {
                 Console.WriteLine(
-                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"PlaceLinkedEg\", \"GetAllCurveOrderVersions\", \"GetAllBlockOrderVersions\", \"GetAllLinkedEgOrderVersions\", \"ModifyCurve\", \"ModifyBlock\", \"CancelCurve\",  \"CancelBlock\", \"CancelLinkedEg\", \"CancelAllOrders\", \"CancelAllOrdersForPortfolios\", \"Auctions\", \"AuctionContracts\", \"ReasonabilityCheckResults\",  \"Exit\". Specify one of the options:");
+                    "Available options: \"Orders\", \"PlaceCurve\", \"PlaceBlocks\", \"PlaceExclusiveGroup\", \"GetAllCurveOrderVersions\", \"GetAllBlockOrderVersions\", \"GetAllExclusiveGroupOrderVersions\", \"ModifyCurve\", \"ModifyBlock\", \"ModifyExclusiveGroup\", \"CancelCurve\",  \"CancelBlock\", \"CancelExclusiveGroup\", \"CancelAllOrders\", \"CancelAllOrdersForPortfolios\", \"Auctions\", \"AuctionContracts\", \"ReasonabilityCheckResults\",  \"Exit\". Specify one of the options:");
                 CommandType command;
                 while (!Enum.TryParse(Console.ReadLine(), out command))
                     Console.WriteLine("Incorrect option specified! Try again.");
@@ -396,19 +396,19 @@
         Orders,
         GetAllCurveOrderVersions,
         GetAllBlockOrderVersions,
-        GetAllLinkedEgOrderVersions,
+        GetAllExclusiveGroupOrderVersions,
         Trades,
         Prices,
         PortfolioVolumes,
         PlaceCurve,
         PlaceBlocks,
-        PlaceLinkedEg,
+        PlaceExclusiveGroup,
         ModifyCurve,
         ModifyBlock,
-        ModifyLinkedEg,
+        ModifyExclusiveGroup,
         CancelCurve,
         CancelBlock,
-        CancelLinkedEg,
+        CancelExclusiveGroup,
         CancelAllOrders,
         CancelAllOrdersForPortfolios,
         Auctions,
