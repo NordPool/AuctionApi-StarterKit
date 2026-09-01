@@ -4,7 +4,7 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
-using NP.Auction.Client.GrpcConsole.Helpers;
+using Helpers;
 using NPS.Auction.API.gRPC.Protos;
 
 

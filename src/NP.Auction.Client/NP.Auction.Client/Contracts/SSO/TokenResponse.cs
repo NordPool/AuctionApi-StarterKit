@@ -1,13 +1,15 @@
-﻿namespace NP.Auction.Client.Contracts.SSO
+﻿
+
+namespace NP.Auction.Client.Contracts.SSO
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     public class TokenResponse
     {
-        [JsonProperty("access_token")] public string AccessToken { get; set; }
+        [JsonPropertyName("access_token")] public string AccessToken { get; set; }
 
-        [JsonProperty("expires_in")] public int ExpiresIn { get; set; }
+        [JsonPropertyName("expires_in")] public int ExpiresIn { get; set; }
 
-        [JsonProperty("token_type")] public string TokenType { get; set; }
+        [JsonPropertyName("token_type")] public string TokenType { get; set; }
     }
 }
