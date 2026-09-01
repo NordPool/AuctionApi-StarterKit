@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Globalization;
     using System.Linq;
     using System.Net.Http;
@@ -12,11 +11,16 @@
     using Configuration;
     using Contracts;
     using Exceptions;
+    using Microsoft.Extensions.Configuration;
     using Refit;
     using Utils;
 
     public class Program
     {
+        private static readonly IConfiguration Config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
         private static IAuctionApiClient _auctionApiClient;
         private static Auction _selectedAuction;
         private static IEnumerable<Auction> _availableAuctions;
@@ -753,19 +757,12 @@
 
         private static AuthConfig ReadAuthorizationConfig()
         {
-            return new AuthConfig
-            {
-                Username = ConfigurationManager.AppSettings["api-username"],
-                Password = ConfigurationManager.AppSettings["api-password"],
-                ClientSecret = ConfigurationManager.AppSettings["api-clientsecret"],
-                ClientId = ConfigurationManager.AppSettings["api-clientid"]
-            };
+            return Config.GetRequiredSection("SsoAuthentication").Get<AuthConfig>();
         }
 
         private static ICachedSsoApiClient InitializeSsoClient(AuthConfig config)
         {
-            var ssoUrl = ConfigurationManager.AppSettings["sso-api-url"];
-            var ssoClient = RestService.For<ISsoApiClient>(ssoUrl);
+            var ssoClient = RestService.ForGenerated<ISsoApiClient>(config.SsoUrl);
 
             return new CachedSsoApiClient(config, ssoClient);
         }
@@ -790,10 +787,11 @@
 
         private static IAuctionApiClient InitializeAuctionClient(ICachedSsoApiClient ssoClient)
         {
-            return RestService.For<IAuctionApiClient>(
+            var baseUrl = Config.GetValue<string>("Settings:AuctionApiUrl").TrimEnd('/') + IAuctionApiClient.BasePath;
+            return RestService.ForGenerated<IAuctionApiClient>(
                 new HttpClient(new AuthenticatedHttpClientHandler(ssoClient))
                 {
-                    BaseAddress = new Uri(ConfigurationManager.AppSettings["auction-api-url"])
+                    BaseAddress = new Uri(baseUrl)
                 });
         }
 

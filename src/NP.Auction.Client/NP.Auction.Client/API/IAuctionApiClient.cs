@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
     using System.Net;
     using System.Threading.Tasks;
     using Contracts;
@@ -13,6 +12,7 @@
     [Headers("Authorization: Bearer")]
     public interface IAuctionApiClient
     {
+        const string BasePath = "/api/v1";
         /// <summary>
         ///     Lists all auctions that have "closeForBiddingTime" within provided timespan
         /// </summary>
@@ -31,7 +31,7 @@
         /// <param name="areas">Collection of areas for additional filtering (optional). Provide null for no filtering</param>
         /// <returns>Collection of trades <see cref="IEnumerable{TradeSummary}" /></returns>
         [Get("/auctions/{auctionId}/trades")]
-        Task<IEnumerable<TradesSummary>> GetTradesAsync([Url] string auctionId,
+        Task<IEnumerable<TradesSummary>> GetTradesAsync(string auctionId,
             [Query(CollectionFormat.Multi)] string[] portfolios, [Query(CollectionFormat.Multi)] string[] areas);
 
         /// <summary>
@@ -42,7 +42,7 @@
         /// <param name="areas">Collection of areas for additional filtering (optional). Provide null for no filtering</param>
         /// <returns>Collection of different type orders <see cref="OrdersResponse" /></returns>
         [Get("/auctions/{auctionId}/orders")]
-        Task<OrdersResponse> GetOrdersAsync([Url] string auctionId,
+        Task<OrdersResponse> GetOrdersAsync(string auctionId,
             [Query(CollectionFormat.Multi)] string[] portfolios, [Query(CollectionFormat.Multi)] string[] areas);
 
         /// <summary>
@@ -51,7 +51,7 @@
         /// <param name="auctionId">Auction id for which the prices should be requested</param> 
         /// <returns>Collection of prices <see cref="PricesResponse" /></returns>
         [Get("/auctions/{auctionId}/prices")]
-        Task<PricesResponse> GetPricesAsync([Url] string auctionId);
+        Task<PricesResponse> GetPricesAsync(string auctionId);
         
         /// <summary>
         ///     Get Reasonability check results for selected auction and order id.
@@ -60,7 +60,7 @@
         /// <param name="orderId">Order id for which the reasonability check results should be requested</param> 
         /// <returns>Collection of prices <see cref="ReasonabilityResultsInfo" /></returns>
         [Get("/auctions/{externalAuctionId}/orders/{orderId}/results")]
-        Task<ReasonabilityResultsInfo> GetReasonabilityCheckResultsAsync([Url] string externalAuctionId, [Url] Guid orderId);
+        Task<ReasonabilityResultsInfo> GetReasonabilityCheckResultsAsync(string externalAuctionId, Guid orderId);
 
         /// <summary>
         ///     Get portfolio net volumes for selected auction.
@@ -68,7 +68,7 @@
         /// <param name="auctionId">Auction id for which the portfolio volumes should be requested</param> 
         /// <returns>Collection of portfolio volumes <see cref="PortfolioVolumesResponse" /></returns>
         [Get("/auctions/{auctionId}/portfoliovolumes")]
-        Task<PortfolioVolumesResponse> GetPortfolioVolumesAsync([Url] string auctionId,
+        Task<PortfolioVolumesResponse> GetPortfolioVolumesAsync(string auctionId,
             [Query(CollectionFormat.Multi)] string[] portfolios, [Query(CollectionFormat.Multi)] string[] areas);
 
         /// <summary>
@@ -77,7 +77,7 @@
         /// <param name="auctionId">Auction id for which contracts should be requested</param> 
         /// <returns>Auction contracts with multi resolution <see cref="AuctionMultiResolutionResponse" /></returns>
         [Get("/auctions/{auctionId}")]
-        Task<AuctionMultiResolutionResponse> GetAuctionAsync([Url] string auctionId);
+        Task<AuctionMultiResolutionResponse> GetAuctionAsync(string auctionId);
 
         /// <summary>
         ///     Cancel all orders for all portfolios for specified auction that user has access to.
@@ -85,7 +85,7 @@
         /// <param name="auctionId">Auction id for which orders should be cancelled</param> 
         /// <returns>Collection of cancelled order ids <see cref="CancelAllOrdersResponse" /></returns>
         [Delete("/auctions/{auctionId}/orders/cancelall")]
-        Task<CancelAllOrdersResponse> CancelAllOrdersForAuctionAsync([Url] string auctionId);
+        Task<CancelAllOrdersResponse> CancelAllOrdersForAuctionAsync(string auctionId);
 
         /// <summary>
         ///     Cancel all orders for specified portfolios and auction that user has access to.
@@ -94,7 +94,7 @@
         /// <param name="portfolios">Portfolios for which orders should be cancelled</param>  
         /// <returns>Collection of cancelled order ids <see cref="CancelAllOrdersResponse" /></returns>
         [Delete("/auctions/{auctionId}/orders/cancel")]
-        Task<CancelAllOrdersResponse> CancelAllOrdersForAuctionAndPortfoliosAsync([Url] string auctionId, [Query(CollectionFormat.Multi)] string[] portfolios);
+        Task<CancelAllOrdersResponse> CancelAllOrdersForAuctionAndPortfoliosAsync(string auctionId, [Query(CollectionFormat.Multi)] string[] portfolios);
 
         /// <summary>
         ///     Post a new curve order through Auction API
@@ -118,7 +118,7 @@
         /// <param name="orderId">Order Id of block order</param>
         /// <returns>A block order for the specified order id <see cref="BlockList" /></returns>
         [Get("/blockorders/{orderId}")]
-        Task<BlockList> GetBlockOrderAsync([Url] Guid orderId);
+        Task<BlockList> GetBlockOrderAsync(Guid orderId);
 
         /// <summary>
         ///     Get all block order versions based on provided order id
@@ -126,7 +126,7 @@
         /// <param name="orderId">Order id of the block order</param>
         /// <returns>All block order versions for the specified order id <see cref="IEnumerable{BlockList}" /></returns>
         [Get("/blockorders/{orderId}/versions")]
-        Task<IEnumerable<BlockList>> GetAllBlockOrderVersionsAsync([Url] Guid orderId);
+        Task<IEnumerable<BlockList>> GetAllBlockOrderVersionsAsync(Guid orderId);
 
         /// <summary>
         ///     Gets a curve order based on provided order id
@@ -134,7 +134,7 @@
         /// <param name="orderId">Order id of the curve order</param>
         /// <returns>A curve order for the specified order id <see cref="CurveOrder" /></returns>
         [Get("/curveorders/{orderId}")]
-        Task<CurveOrder> GetCurveOrderAsync([Url] Guid orderId);
+        Task<CurveOrder> GetCurveOrderAsync(Guid orderId);
 
         /// <summary>
         ///     Get all curve order versions based on provided order id
@@ -142,7 +142,7 @@
         /// <param name="orderId">Order id of the curve order</param>
         /// <returns>All curve order versions for the specified order id <see cref="IEnumerable{CurveOrder}" /></returns>
         [Get("/curveorders/{orderId}/versions")]
-        Task<IEnumerable<CurveOrder>> GetCurveOrderVersionsAsync([Url] Guid orderId);
+        Task<IEnumerable<CurveOrder>> GetCurveOrderVersionsAsync(Guid orderId);
 
         /// <summary>
         ///     Modify existing curve order
@@ -154,7 +154,7 @@
         /// </param>
         /// <returns></returns>
         [Patch("/curveorders/{orderId}")]
-        Task PatchCurveOrderAsync([Url] Guid orderId, [Body] CurveOrderPatchRequest curveOrderPatchRequest);
+        Task PatchCurveOrderAsync(Guid orderId, [Body] CurveOrderPatchRequest curveOrderPatchRequest);
 
         /// <summary>
         ///     Modify existing block order
@@ -166,7 +166,7 @@
         /// </param>
         /// <returns></returns>
         [Patch("/blockorders/{orderId}")]
-        Task PatchBlockOrderAsync([Url] Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
+        Task PatchBlockOrderAsync(Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
 
         /// <summary>
         ///     Get all linked eg order versions based on provided order id
@@ -174,7 +174,7 @@
         /// <param name="orderId">Order id of the block order</param>
         /// <returns>All linked eg order versions for the specified order id <see cref="IEnumerable{BlockList}" /></returns>
         [Get("/linkedegorders/{orderId}/versions")]
-        Task<IEnumerable<BlockList>> GetAllLinkedEgOrderVersionsAsync([Url] Guid orderId);
+        Task<IEnumerable<BlockList>> GetAllLinkedEgOrderVersionsAsync(Guid orderId);
 
         /// <summary>
         ///     Gets a linked eg order based on provided order id
@@ -182,7 +182,7 @@
         /// <param name="orderId">Order id of the linked eg order</param>
         /// <returns>A linked eg order for the specified order id <see cref="BlockList" /></returns>
         [Get("/linkedegorders/{orderId}")]
-        Task<BlockList> GetLinkedEgOrderAsync([Url] Guid orderId);
+        Task<BlockList> GetLinkedEgOrderAsync(Guid orderId);
 
         /// <summary>
         ///     Post a new linked eg order through Auction API
@@ -202,7 +202,7 @@
         /// </param>
         /// <returns></returns>
         [Patch("/linkedegorders/{orderId}")]
-        Task PatchLinkedEgOrderAsync([Url] Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
+        Task PatchLinkedEgOrderAsync(Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
     }
 
     /// <summary>

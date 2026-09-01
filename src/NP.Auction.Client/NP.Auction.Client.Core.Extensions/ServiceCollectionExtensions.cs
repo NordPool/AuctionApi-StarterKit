@@ -14,12 +14,12 @@
         {
             services.AddSingleton(authConfig);
 
-            services.AddRefitClient<ISsoApiClient>()
+            services.AddRefitGeneratedClient<ISsoApiClient>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(authConfig.SsoUrl));
 
             services.AddSingleton<ICachedSsoApiClient, CachedSsoApiClient>();
 
-            services.AddRefitClient<IAuctionApiClient>()
+            services.AddRefitGeneratedClient<IAuctionApiClient>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(auctionApiUrl))
                 .AddHttpMessageHandler<AuthenticatedHttpClientHandler>();
         }

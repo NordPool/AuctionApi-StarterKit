@@ -19,7 +19,7 @@ public static class ConfigurationHelper
     public static ICachedSsoApiClient InitializeSsoClient(IConfiguration config)
     {
         var authConfig = config.GetRequiredSection("SsoAuthentication").Get<AuthConfig>();
-        var ssoClient = RestService.For<ISsoApiClient>(authConfig.SsoUrl);
+        var ssoClient = RestService.ForGenerated<ISsoApiClient>(authConfig.SsoUrl);
 
         return new CachedSsoApiClient(authConfig, ssoClient);
     }
