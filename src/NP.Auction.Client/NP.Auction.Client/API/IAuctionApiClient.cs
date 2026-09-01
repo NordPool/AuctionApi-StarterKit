@@ -169,40 +169,41 @@
         Task PatchBlockOrderAsync(Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
 
         /// <summary>
-        ///     Get all linked eg order versions based on provided order id
+        ///     Get all exclusive group order versions based on provided order id.
+        ///     Used for both exclusive group and linked exclusive group orders.
         /// </summary>
-        /// <param name="orderId">Order id of the block order</param>
-        /// <returns>All linked eg order versions for the specified order id <see cref="IEnumerable{BlockList}" /></returns>
-        [Get("/linkedegorders/{orderId}/versions")]
-        Task<IEnumerable<BlockList>> GetAllLinkedEgOrderVersionsAsync(Guid orderId);
+        /// <param name="orderId">Order id of the exclusive group order</param>
+        /// <returns>All versions for the specified order id <see cref="IEnumerable{BlockList}" /></returns>
+        [Get("/exclusivegrouporders/{orderId}/versions")]
+        Task<IEnumerable<BlockList>> GetAllExclusiveGroupOrderVersionsAsync(Guid orderId);
 
         /// <summary>
-        ///     Gets a linked eg order based on provided order id
+        ///     Gets an exclusive group order based on provided order id.
+        ///     Used for both exclusive group and linked exclusive group orders.
         /// </summary>
-        /// <param name="orderId">Order id of the linked eg order</param>
-        /// <returns>A linked eg order for the specified order id <see cref="BlockList" /></returns>
-        [Get("/linkedegorders/{orderId}")]
-        Task<BlockList> GetLinkedEgOrderAsync(Guid orderId);
+        /// <param name="orderId">Order id of the exclusive group order</param>
+        /// <returns>The exclusive group order for the specified order id <see cref="BlockList" /></returns>
+        [Get("/exclusivegrouporders/{orderId}")]
+        Task<BlockList> GetExclusiveGroupOrderAsync(Guid orderId);
 
         /// <summary>
-        ///     Post a new linked eg order through Auction API
+        ///     Post a new exclusive group order through Auction API.
+        ///     Used for both exclusive group and linked exclusive group blocks.
         /// </summary>
-        /// <param name="blockOrderRequest">linked eg order to be placed<see cref="BlockOrderRequest" /></param>
-        /// <returns>Placed linked eg order<see cref="BlockList" /></returns>
-        [Post("/linkedegorders")]
-        Task<BlockList> PostLinkedEgOrderAsync([Body] BlockOrderRequest blockOrderRequest);
+        /// <param name="blockOrderRequest">Exclusive group order to be placed <see cref="BlockOrderRequest" /></param>
+        /// <returns>Placed exclusive group order <see cref="BlockList" /></returns>
+        [Post("/exclusivegrouporders")]
+        Task<BlockList> PostExclusiveGroupOrderAsync([Body] BlockOrderRequest blockOrderRequest);
 
         /// <summary>
-        ///     Modify existing linked eg order
+        ///     Modify an existing exclusive group order.
+        ///     Used for both exclusive group and linked exclusive group orders.
+        ///     Providing an empty blocks list cancels the order.
         /// </summary>
-        /// <param name="orderId"></param>
-        /// <param name="blocks">
-        ///     Blocks to modify (new blocks will be added, if empty list is provided then block order is
-        ///     cancelled
-        /// </param>
-        /// <returns></returns>
-        [Patch("/linkedegorders/{orderId}")]
-        Task PatchLinkedEgOrderAsync(Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
+        /// <param name="orderId">Order id to modify</param>
+        /// <param name="blockOrderPatchRequest">Blocks to modify (empty list cancels the order)</param>
+        [Patch("/exclusivegrouporders/{orderId}")]
+        Task PatchExclusiveGroupOrderAsync(Guid orderId, [Body] BlockOrderPatchRequest blockOrderPatchRequest);
     }
 
     /// <summary>
@@ -250,12 +251,12 @@
             }
         }
 
-        public static async Task<BlockList> PlaceLinkedEgOrder(this IAuctionApiClient apiClient,
+        public static async Task<BlockList> PlaceExclusiveGroupOrder(this IAuctionApiClient apiClient,
             BlockOrderRequest blockOrder)
         {
             try
             {
-                return await apiClient.PostLinkedEgOrderAsync(blockOrder);
+                return await apiClient.PostExclusiveGroupOrderAsync(blockOrder);
             }
             catch (ApiException exception)
             {
@@ -268,9 +269,9 @@
             await apiClient.ModifyBlockOrder(orderId, new List<Block>());
         }
 
-        public static async Task CancelLinkedEgOrder(this IAuctionApiClient apiClient, Guid orderId)
+        public static async Task CancelExclusiveGroupOrder(this IAuctionApiClient apiClient, Guid orderId)
         {
-            await apiClient.ModifyLinkedEgOrder(orderId, new List<Block>());
+            await apiClient.ModifyExclusiveGroupOrder(orderId, new List<Block>());
         }
 
         public static async Task CancelCurveOrder(this IAuctionApiClient apiClient, Guid orderId)
@@ -290,11 +291,11 @@
             }
         }
 
-        public static async Task ModifyLinkedEgOrder(this IAuctionApiClient apiClient, Guid orderId, List<Block> blocks)
+        public static async Task ModifyExclusiveGroupOrder(this IAuctionApiClient apiClient, Guid orderId, List<Block> blocks)
         {
             try
             {
-                await apiClient.PatchLinkedEgOrderAsync(orderId, new BlockOrderPatchRequest { Blocks = blocks });
+                await apiClient.PatchExclusiveGroupOrderAsync(orderId, new BlockOrderPatchRequest { Blocks = blocks });
             }
             catch (ApiException exception)
             {
